@@ -55,9 +55,9 @@ bootJar {
 
 sonar {
     properties {
-        property "sonar.projectKey", "TODO"
-        property "sonar.organization", "TODO"
-        property "sonar.host.url", "TODO"
+        property "sonar.projectKey", "Leon0605_sopra-fs25-group-05-server"
+        property "sonar.organization", "leon0605"
+        property "sonar.host.url", "https://sonarcloud.io"
     }
 }
 
