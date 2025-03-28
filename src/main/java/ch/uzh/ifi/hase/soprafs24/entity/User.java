@@ -1,9 +1,15 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
-import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
-
-import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 
 /**
  * Internal User Representation
@@ -26,8 +32,7 @@ public class User implements Serializable {
   @GeneratedValue
   private Long id;
 
-  @Column(nullable = false)
-  private String name;
+  
 
   @Column(nullable = false, unique = true)
   private String username;
@@ -38,6 +43,23 @@ public class User implements Serializable {
   @Column(nullable = false)
   private UserStatus status;
 
+  @Column(nullable = false)
+  private String password;
+
+  private ArrayList <String> chats = new ArrayList<>();
+  
+  public void setChats(String chatId){
+    this.chats.add(chatId);
+  }
+  public ArrayList <String> getChats(){
+    return chats;
+  }
+  public void setPassword(String password){
+    this.password=password;
+  }
+  public String getPassword(){
+    return password;
+  }
   public Long getId() {
     return id;
   }
@@ -46,13 +68,6 @@ public class User implements Serializable {
     this.id = id;
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
 
   public String getUsername() {
     return username;
