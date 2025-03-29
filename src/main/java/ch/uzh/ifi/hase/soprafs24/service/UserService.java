@@ -44,9 +44,9 @@ public class UserService {
   public List<User> getUsers() {
     return this.userRepository.findAll();
   }
-  public void performLogout(User user){
+  public void performLogout(Long userId){
 
-    Optional<User> foundUser = userRepository.findById(user.getId());
+    Optional<User> foundUser = userRepository.findById(userId);
     if( foundUser.isEmpty()){
       throw new ResponseStatusException(HttpStatus.NOT_FOUND,"User not found");
     }
