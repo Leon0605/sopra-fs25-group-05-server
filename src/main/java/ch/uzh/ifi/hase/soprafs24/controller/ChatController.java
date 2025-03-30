@@ -11,7 +11,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
+import ch.uzh.ifi.hase.soprafs24.entity.Chat;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.entity.Message;
 import ch.uzh.ifi.hase.soprafs24.repository.ChatRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatMessageDTO;
@@ -65,5 +68,23 @@ public class ChatController {
         String content = messageContentDTO.getContent();
         Message message = chatService.CreateMessage(content,userId, chatId);
         chatService.saveMessage(message);
+    }
+
+    @PostMapping("/chat")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public String createChat(@RequestBody ArrayList<Long> userIds) {
+    if (userIds == null || userIds.size() < 2) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A chat must have at least two users.");
+    }
+
+    ArrayList<User> users = new ArrayList<>();
+    for (Long userId : userIds) {
+        User user = userService.findByUserId(userId);
+        users.add(user);
+    }
+
+    Chat newChat = chatService.createChat(users);
+    return newChat.getChatId();
     }
 }

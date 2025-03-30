@@ -79,7 +79,10 @@ public class UserService {
     userRepository.flush();
     for(User user: otherUsers){
       if(!user.getId().equals(newUser.getId()) ){
-        Chat newChat = chatService.createChat(newUser,user); 
+        ArrayList<User> users = new ArrayList<>();
+        users.add(newUser);
+        users.add(user);
+        Chat newChat = chatService.createChat(users); 
         user.setChats(newChat.getChatId());
         newUser.setChats(newChat.getChatId());
         userRepository.save(user);

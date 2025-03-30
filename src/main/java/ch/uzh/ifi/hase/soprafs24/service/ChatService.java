@@ -26,16 +26,24 @@ public class ChatService {
         this.chatRepository = chatRepository;
         this.messageRepository = messageRepository;
     }
-    public Chat createChat(User user1,User user2){
+    public Chat createChat(ArrayList<User> users) {
+        if (users == null || users.size() < 2) {
+            throw new IllegalArgumentException("A chat must have at least two users.");
+        }
+    
         Chat newChat = new Chat();
-
-        newChat.setUserId(user1.getId());
-        newChat.setUserId(user2.getId());
+        ArrayList<Long> userIds = new ArrayList<>();
+    
+        for (User user : users) {
+            userIds.add(user.getId());
+        }
+    
+        newChat.setUserIds(userIds); // Ensure the Chat class has a setUserIds method
         newChat.setChatId(UUID.randomUUID().toString());
-        
+    
         chatRepository.save(newChat);
         chatRepository.flush();
-
+    
         return newChat;
     }
     public ArrayList<Message> getAllMessageWithChatId(String chatId){

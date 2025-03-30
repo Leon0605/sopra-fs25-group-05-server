@@ -36,6 +36,15 @@ public class Chat implements Serializable {
     public ArrayList <String> getMessagesId(){
         return messagesId;
     }
+    private ArrayList<Long> userIds;
+
+    public void setUserIds(ArrayList<Long> userIds) {
+        this.userIds = userIds;
+    }
+
+    public ArrayList<Long> getUserIds() {
+        return userIds;
+    }
 
 
 }
