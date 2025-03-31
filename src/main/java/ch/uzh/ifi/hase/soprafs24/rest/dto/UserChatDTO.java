@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class UserChatDTO {
     private String chatId;
     
-    private ArrayList <Long> userId;
+    private long userId;
 
     public void setChatId(String chatId){
         this.chatId=chatId;
@@ -14,10 +14,10 @@ public class UserChatDTO {
         return chatId;
     }
 
-    public void setUserId(ArrayList <Long> userId){
+    public void setUserId(long userId){
         this.userId = userId;
     }
-    public ArrayList <Long> getUserId(){
+    public long getUserId(){
         return userId;
     }
     

@@ -12,8 +12,8 @@ import javax.persistence.Table;
 public class Chat implements Serializable {
     @Id
     private String chatId;
-    private ArrayList <Long> userId = new ArrayList<>();
-    private ArrayList <String> messagesId = new ArrayList<>();
+    private long userId;
+    private ArrayList<String> messagesId = new ArrayList<>();
 
     public void setChatId(String chatId){
         this.chatId=chatId;
@@ -22,10 +22,10 @@ public class Chat implements Serializable {
         return chatId;
     }
 
-    public void setUserId(Long userId){
-        this.userId.add(userId);
+    public void setUserId(long userId){
+        this.userId = userId;
     }
-    public ArrayList <Long> getUserId(){
+    public long getUserId(){
         return userId;
     }
     

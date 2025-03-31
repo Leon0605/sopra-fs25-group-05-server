@@ -1,7 +1,9 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
+//Java Libraries
 import java.util.ArrayList;
 
+//Spring Libraries
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+
+//internal Classes
 import ch.uzh.ifi.hase.soprafs24.entity.Chat;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.entity.Message;
@@ -38,12 +42,12 @@ public class ChatController {
     @GetMapping("/chat")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ArrayList <UserChatDTO> getAllChats(@RequestHeader("userId") Long userId){
-       
-        ArrayList <String> chatsId = userService.findChatWithUserId(userId);
-        
+    public ArrayList <UserChatDTO> getAllChats(){
+
+        ArrayList <String> chatsId = userService.findChatWithUserId(Long.valueOf(1));
+
         ArrayList <UserChatDTO> userChatDTOs = new ArrayList<>();
-        
+
         for(String chatId : chatsId){
             userChatDTOs.add(DTOMapper.INSTANCE.convertChatEntityToUserChatDTO(chatRepository.findByChatId(chatId)));
         }
@@ -78,6 +82,7 @@ public class ChatController {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A chat must have at least two users.");
     }
 
+
     ArrayList<User> users = new ArrayList<>();
     for (Long userId : userIds) {
         User user = userService.findByUserId(userId);
@@ -87,4 +92,6 @@ public class ChatController {
     Chat newChat = chatService.createChat(users);
     return newChat.getChatId();
     }
+
 }
+

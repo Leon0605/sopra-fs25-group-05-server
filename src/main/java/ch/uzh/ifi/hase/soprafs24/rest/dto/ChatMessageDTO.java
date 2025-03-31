@@ -6,7 +6,7 @@ public class ChatMessageDTO {
     private String messageId;
     private String chatId;
     private Long userId;
-    private ArrayList <String> content;
+    private String content;
 
     public void setMessageId(String messageId){
         this.messageId = messageId;
@@ -26,10 +26,10 @@ public class ChatMessageDTO {
     public Long getUserId(){
         return userId;
     }
-    public void setContent(ArrayList<String> content){
+    public void setContent(String content){
         this.content = content;
     }
-    public ArrayList<String> getContent(){
+    public String getContent(){
         return content;
     }
 }

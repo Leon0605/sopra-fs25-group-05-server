@@ -15,7 +15,7 @@ public class Message implements Serializable  {
 
     private String chatId;
     private Long userId;
-    private ArrayList <String> content = new ArrayList<>();
+    private String content;
 
     public void setMessageId(String messageId){
         this.messageId=messageId;
@@ -36,9 +36,9 @@ public class Message implements Serializable  {
         return userId;
     }
     public void setContent(String content){
-        this.content.add(content);
+        this.content=content;
     }
-    public ArrayList<String> getContent(){
+    public String getContent(){
         return content;
     }
 }

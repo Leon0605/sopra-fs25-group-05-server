@@ -46,7 +46,7 @@ public class User implements Serializable {
   @Column(nullable = false)
   private String password;
 
-  private ArrayList <String> chats = new ArrayList<>();
+  private ArrayList<String> chats = new ArrayList<>();
   
   public void setChats(String chatId){
     this.chats.add(chatId);
