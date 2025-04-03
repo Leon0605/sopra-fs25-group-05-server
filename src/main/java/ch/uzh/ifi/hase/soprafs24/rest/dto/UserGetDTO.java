@@ -8,7 +8,15 @@ public class UserGetDTO {
 
   private String username;
   private UserStatus status;
+  private String language;
+  
+  public void setLanguage(String language){
+    this.language = language;
+  }
 
+  public String getLanguage(){
+      return language;
+  }
   public Long getId() {
     return id;
   }

@@ -37,6 +37,7 @@ public interface DTOMapper {
   @Mapping(source = "id", target = "id")
   @Mapping(source = "username", target = "username")
   @Mapping(source = "status", target = "status")
+  @Mapping(source = "language", target ="language")
   UserGetDTO convertEntityToUserGetDTO(User user);
 
   @Mapping(source = "id", target = "id")
@@ -45,15 +46,16 @@ public interface DTOMapper {
   @Mapping(source = "token", target = "token")
   UserLoginDTO convertEntityToUserLoginDTO(User user);
 
-  @Mapping(source = "userId", target = "userId")
+  @Mapping(source = "userIds", target = "userIds")
   @Mapping(source = "chatId", target = "chatId")
   UserChatDTO convertChatEntityToUserChatDTO(Chat chat);
 
   @Mapping(source = "userId", target = "userId")
   @Mapping(source = "chatId", target = "chatId")
   @Mapping(source = "messageId", target = "messageId")
-  @Mapping(source = "content", target = "content")
-  Message convertMessageDTOToMessageEntity(ChatMessageDTO chatMessageDTO);
+  @Mapping(source = "languageMapping", target = "languageMapping")
+  
   ChatMessageDTO convertMessageEntityToChatMessageDTO(Message message);
+ 
 
 }

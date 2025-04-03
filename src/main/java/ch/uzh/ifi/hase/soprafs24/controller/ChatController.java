@@ -3,7 +3,6 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 //Java Libraries
 import java.util.ArrayList;
 
-//Spring Libraries
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,11 +14,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-
-//internal Classes
 import ch.uzh.ifi.hase.soprafs24.entity.Chat;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.entity.Message;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.ChatRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatMessageDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.MessageContentDTO;
@@ -62,6 +59,14 @@ public class ChatController {
 
         for(Message message: messages){
             chatMessageDTOs.add(DTOMapper.INSTANCE.convertMessageEntityToChatMessageDTO(message));
+        }
+        for(ChatMessageDTO chatMessageDTO: chatMessageDTOs){
+            for(Long userId: chatRepository.findByChatId(chatId).getUserIds()){
+                User user = userService.findByUserId(userId);
+                chatMessageDTO.setUserLanguageMapping(userId,user.getLanguage());
+            }
+            
+   
         }
         return chatMessageDTOs;
     }

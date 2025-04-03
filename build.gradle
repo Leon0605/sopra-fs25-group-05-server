@@ -42,6 +42,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     //implementation 'org.springframework.boot:spring-boot-starter-messaging'
 
+
+    implementation("com.azure:azure-ai-translation-text:1.0.0-beta.1")
+    //Azure API 
+
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.h2database:h2'
 

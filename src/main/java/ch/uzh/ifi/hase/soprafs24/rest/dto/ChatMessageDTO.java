@@ -1,13 +1,17 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import ch.uzh.ifi.hase.soprafs24.constant.LanguageMapping;
 
 public class ChatMessageDTO {
     private String messageId;
     private String chatId;
     private Long userId;
-    private String content;
-
+    private LanguageMapping languageMapping;
+    private Map <Long,String> userLanguageMapping = new HashMap();
+    
     public void setMessageId(String messageId){
         this.messageId = messageId;
     }
@@ -26,10 +30,16 @@ public class ChatMessageDTO {
     public Long getUserId(){
         return userId;
     }
-    public void setContent(String content){
-        this.content = content;
+    public void setLanguageMapping(LanguageMapping languageMapping){
+        this.languageMapping = languageMapping;
     }
-    public String getContent(){
-        return content;
+    public LanguageMapping getLanguageMapping(){
+        return languageMapping;
+    }
+    public void setUserLanguageMapping(long userId,String language){
+        userLanguageMapping.put(userId,language);
+    }
+    public Map getUserLanguageMapping(){
+        return userLanguageMapping;
     }
 }

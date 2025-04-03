@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLanguageUpdateDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
@@ -37,6 +39,14 @@ public class UserController {
     this.userService = userService;
    
   }
+  @PutMapping("/users/{userId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @ResponseBody
+  public void updateLanguage(@PathVariable String userId, @RequestBody UserLanguageUpdateDTO userLanguageUpdateDTO){
+
+    userService.updateLanguageWithUserId(Long.parseLong(userId),userLanguageUpdateDTO.getLanguage());
+  }
+
   @PostMapping("/login")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
