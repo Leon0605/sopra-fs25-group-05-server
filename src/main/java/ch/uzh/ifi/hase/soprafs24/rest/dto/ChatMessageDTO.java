@@ -10,7 +10,7 @@ public class ChatMessageDTO {
     private String chatId;
     private Long userId;
     private LanguageMapping languageMapping;
-    private Map <Long,String> userLanguageMapping = new HashMap();
+    //private Map <Long,String> userLanguageMapping = new HashMap();
     
     public void setMessageId(String messageId){
         this.messageId = messageId;
@@ -30,16 +30,19 @@ public class ChatMessageDTO {
     public Long getUserId(){
         return userId;
     }
-    public void setLanguageMapping(LanguageMapping languageMapping){
-        this.languageMapping = languageMapping;
-    }
+    //public void setLanguageMapping(LanguageMapping languageMapping){
+        //this.languageMapping = languageMapping;
+    //}
     public LanguageMapping getLanguageMapping(){
         return languageMapping;
     }
+    /*
     public void setUserLanguageMapping(long userId,String language){
         userLanguageMapping.put(userId,language);
     }
     public Map getUserLanguageMapping(){
         return userLanguageMapping;
     }
+
+     */
 }

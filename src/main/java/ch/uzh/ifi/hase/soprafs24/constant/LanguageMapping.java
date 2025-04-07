@@ -11,7 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyColumn;
 
 @Embeddable
-public class LanguageMapping {
+public class LanguageMapping extends HashMap<String, String> {
 
     @ElementCollection
     @CollectionTable(name = "message_language_mapping", joinColumns = @JoinColumn(name = "message_id"))
@@ -21,11 +21,11 @@ public class LanguageMapping {
 
     public LanguageMapping() {
         this.languageMap = new HashMap<>();
-        languageMap.put("en", "");
-        languageMap.put("de", "");
-        languageMap.put("fr", "");
-        languageMap.put("es", "");
-        languageMap.put("it", "");
+        languageMap.put("en", null);
+        languageMap.put("de", null);
+        languageMap.put("fr", null);
+        languageMap.put("es", null);
+        languageMap.put("it", null);
     }
 
     public String getContent(String languageKey) {
@@ -35,6 +35,7 @@ public class LanguageMapping {
     public void setContent(String languageKey, String contentValue) {
         languageMap.put(languageKey, contentValue);
     }
+
 
 
     public Map<String, String> getLanguageMap() {

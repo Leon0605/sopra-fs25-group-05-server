@@ -82,9 +82,10 @@ public class UserService {
     checkIfUserExists(newUser);
     // saves the given entity but data is only persisted in the database once
     // flush() is called
-    List <User> otherUsers = !getUsers().isEmpty() ? getUsers() : new ArrayList<User>();  
+    List <User> otherUsers = !getUsers().isEmpty() ? getUsers() : new ArrayList<User>();
     newUser = userRepository.save(newUser);
     userRepository.flush();
+    /*
     for(User user: otherUsers){
       if(!user.getId().equals(newUser.getId()) ){
         ArrayList<User> users = new ArrayList<>();
@@ -99,6 +100,8 @@ public class UserService {
       }
       
     }
+
+     */
     
     log.debug("Created Information for User: {}", newUser);
     return newUser;

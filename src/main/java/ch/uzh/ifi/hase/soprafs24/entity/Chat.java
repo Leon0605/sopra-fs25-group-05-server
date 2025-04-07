@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.entity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -14,6 +15,7 @@ public class Chat implements Serializable {
     private String chatId;
     private long userId;
     private ArrayList<String> messagesId = new ArrayList<>();
+    private HashSet<String> languages = new HashSet<>();
 
     public void setChatId(String chatId){
         this.chatId=chatId;
@@ -36,6 +38,10 @@ public class Chat implements Serializable {
     public ArrayList <String> getMessagesId(){
         return messagesId;
     }
+
+    public void setLanguages(HashSet<String> languages){this.languages=languages;}
+    public HashSet<String> getLanguages(){return languages;}
+
     private ArrayList<Long> userIds;
 
     public void setUserIds(ArrayList<Long> userIds) {
