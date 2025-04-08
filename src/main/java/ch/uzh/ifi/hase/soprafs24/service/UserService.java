@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,11 +37,17 @@ public class UserService {
   private final ChatService chatService;
 
   @Autowired
-  public UserService(@Qualifier("userRepository") UserRepository userRepository,ChatService chatService) {
+  public UserService(@Qualifier("userRepository") UserRepository userRepository,@Lazy ChatService chatService) {
     this.userRepository = userRepository;
     this.chatService = chatService;
   }
+  public void updateLanguageWithUserId(Long userId,String language){
+    User user = findByUserId(userId);
+    user.setLanguage(language);
 
+    userRepository.save(user);
+    userRepository.flush();
+  }
   public List<User> getUsers() {
     return this.userRepository.findAll();
   }
@@ -71,12 +78,14 @@ public class UserService {
   public User createUser(User newUser) {
     newUser.setToken(UUID.randomUUID().toString());
     newUser.setStatus(UserStatus.ONLINE);
+    newUser.setLanguage("en");
     checkIfUserExists(newUser);
     // saves the given entity but data is only persisted in the database once
     // flush() is called
-    List <User> otherUsers = !getUsers().isEmpty() ? getUsers() : new ArrayList<User>();  
+    List <User> otherUsers = !getUsers().isEmpty() ? getUsers() : new ArrayList<User>();
     newUser = userRepository.save(newUser);
     userRepository.flush();
+    /*
     for(User user: otherUsers){
       if(!user.getId().equals(newUser.getId()) ){
         ArrayList<User> users = new ArrayList<>();
@@ -91,6 +100,8 @@ public class UserService {
       }
       
     }
+
+     */
     
     log.debug("Created Information for User: {}", newUser);
     return newUser;

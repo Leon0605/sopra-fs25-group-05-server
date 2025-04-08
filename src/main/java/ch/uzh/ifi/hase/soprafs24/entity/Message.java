@@ -1,10 +1,13 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 import java.io.Serializable;
-import java.util.ArrayList;
 
+
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import ch.uzh.ifi.hase.soprafs24.constant.LanguageMapping;
 
 @Entity
 @Table(name = "MESSAGE")
@@ -15,7 +18,16 @@ public class Message implements Serializable  {
 
     private String chatId;
     private Long userId;
-    private String content;
+
+    @Embedded
+    private LanguageMapping languageMapping;
+
+    public LanguageMapping getLanguageMapping() {
+        return languageMapping;
+    }
+    public void setLanguageMapping(LanguageMapping languageMapping) {
+        this.languageMapping = languageMapping;
+    }
 
     public void setMessageId(String messageId){
         this.messageId=messageId;
@@ -35,10 +47,5 @@ public class Message implements Serializable  {
     public Long getUserId(){
         return userId;
     }
-    public void setContent(String content){
-        this.content=content;
-    }
-    public String getContent(){
-        return content;
-    }
+    
 }

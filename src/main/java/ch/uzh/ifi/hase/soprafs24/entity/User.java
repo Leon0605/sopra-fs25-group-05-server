@@ -45,9 +45,10 @@ public class User implements Serializable {
 
   @Column(nullable = false)
   private String password;
-
   private ArrayList<String> chats = new ArrayList<>();
   
+  private String language;
+
   public void setChats(String chatId){
     this.chats.add(chatId);
   }
@@ -91,5 +92,11 @@ public class User implements Serializable {
 
   public void setStatus(UserStatus status) {
     this.status = status;
+  }
+  public String getLanguage(){
+    return language;
+  }
+  public void setLanguage(String language){
+    this.language=language;
   }
 }
