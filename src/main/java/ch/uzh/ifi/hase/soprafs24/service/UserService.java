@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -13,12 +15,17 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs24.entity.Chat;
+
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserChangePasswordDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPutDTO;
+
+
 
 /**
  * User Service
@@ -41,13 +48,59 @@ public class UserService {
     this.userRepository = userRepository;
     this.chatService = chatService;
   }
-  public void updateLanguageWithUserId(Long userId,String language){
+
+  public void changeUserPassword(Long userId, String token, UserChangePasswordDTO userChangePasswordDTO){
     User user = findByUserId(userId);
-    user.setLanguage(language);
+    if(!user.getToken().equals(token) ){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Token not valid for this user");
+    }
+    if(!user.getPassword().equals(userChangePasswordDTO.getOldPassword())){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"wrong old password ");
+    }
+    user.setPassword(userChangePasswordDTO.getNewPassword());
+    userRepository.save(user);
+    userRepository.flush();
+
+    
+
+  }
+  public void updateUserProfilePictureWithUserId(Long userId, MultipartFile photo){
+    
+    User user = findByUserId(userId);
+    try {
+      String base64 = Base64.getEncoder().encodeToString(photo.getBytes());
+      String dataUrl = "data:image/png;base64," + base64;
+      user.setPhoto(dataUrl);
+      userRepository.save(user);
+      userRepository.flush();
+    } catch (IOException e) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Picture format is wrong");
+    }
+    
+   
+
+  }
+  public void updateUserWithUserId(Long userId, UserPutDTO userPutDTO){
+    User user = findByUserId(userId);
+    if(userPutDTO.getLanguage() != null){
+      user.setLanguage(userPutDTO.getLanguage());
+    }
+    if(userPutDTO.getLearningLanguage() != null){
+      user.setLearningLanguage(userPutDTO.getLearningLanguage());
+    }
+    if(userPutDTO.getPrivacy() != null){
+      user.setPrivacy(userPutDTO.getPrivacy());
+    }
+    if(userPutDTO.getBirthday() != null){
+      user.setBirthday(userPutDTO.getBirthday());
+    }
+  
+    
 
     userRepository.save(user);
     userRepository.flush();
   }
+
   public List<User> getUsers() {
     return this.userRepository.findAll();
   }

@@ -3,3 +3,7 @@
 
 runtime: java17
 instance_class: F2
+
+env_variables:
+  SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 5MB
+  SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 5MB

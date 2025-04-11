@@ -10,15 +10,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserChangePasswordDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLanguageUpdateDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 //Initial commit: Server Test
@@ -42,9 +45,16 @@ public class UserController {
   @PutMapping("/users/{userId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody
-  public void updateLanguage(@PathVariable String userId, @RequestBody UserLanguageUpdateDTO userLanguageUpdateDTO){
+  public void updateUser(@PathVariable String userId, @RequestBody UserPutDTO userLanguageUpdateDTO){
 
-    userService.updateLanguageWithUserId(Long.parseLong(userId),userLanguageUpdateDTO.getLanguage());
+    userService.updateUserWithUserId(Long.parseLong(userId),userLanguageUpdateDTO);
+  }
+  @PostMapping("/users/{userId}/photo")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public void updateProfilePicture(@PathVariable String userId, @RequestParam("photo") MultipartFile photo){
+   
+    userService.updateUserProfilePictureWithUserId(Long.parseLong(userId),photo);
   }
 
   @PostMapping("/login")
@@ -87,7 +97,12 @@ public class UserController {
     return DTOMapper.INSTANCE.convertEntityToUserGetDTO(userService.findByUserId(Long.parseLong(userId)));  
   }
 
-
+  @PostMapping("/users/{userId}/change-password")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public void changePassword(@PathVariable String userId, @RequestHeader("Authorization") String token, @RequestBody UserChangePasswordDTO userChangePasswordDTO){
+      userService.changeUserPassword(Long.parseLong(userId),token,userChangePasswordDTO);
+  }
 
   @PostMapping("/users")
   @ResponseStatus(HttpStatus.CREATED)

@@ -9,7 +9,35 @@ public class UserGetDTO {
   private String username;
   private UserStatus status;
   private String language;
-  
+  private String learningLanguage;
+  private String birthday;
+  private String privacy;
+  private String photo;
+
+  public String getPhoto() {
+      return photo;
+  }
+  public void setPhoto(String photo) {
+      this.photo = photo;
+  }
+  public void setLearningLanguage(String learningLanguage){
+    this.learningLanguage = learningLanguage;
+  }
+  public String getLearningLanguage(){
+      return learningLanguage;
+  }
+  public void setPrivacy(String privacy){
+      this.privacy = privacy;
+  }
+  public String getPrivacy(){
+      return privacy;
+  }
+  public void setBirthday(String birthday){
+      this.birthday = birthday;
+  }
+  public String getBirthday(){
+      return birthday;
+  }
   public void setLanguage(String language){
     this.language = language;
   }
@@ -20,7 +48,6 @@ public class UserGetDTO {
   public Long getId() {
     return id;
   }
-
   public void setId(Long id) {
     this.id = id;
   }

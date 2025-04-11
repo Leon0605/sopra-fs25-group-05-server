@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
@@ -45,10 +46,47 @@ public class User implements Serializable {
 
   @Column(nullable = false)
   private String password;
+
   private ArrayList<String> chats = new ArrayList<>();
   
   private String language;
 
+  private String learningLanguage;
+
+  private String privacy;
+
+  private String birthday;
+
+  @Lob
+  private String photo;
+
+  public void setBirthday(String birthday){
+    this.birthday = birthday;
+  }
+
+  public String getBirthday(){
+    return birthday;
+  }
+  public void setLearningLanguage(String learningLanguage){
+    this.learningLanguage = learningLanguage;
+  }
+
+  public String getLearningLanguage(){
+    return learningLanguage;
+  }
+  public void setPrivacy(String privacy){
+    this.privacy = privacy;
+  }
+  public String getPrivacy(){
+    return privacy;
+  }
+  
+  public String getPhoto() {
+      return photo;
+  }
+  public void setPhoto(String photo) {
+      this.photo = photo;
+  }
   public void setChats(String chatId){
     this.chats.add(chatId);
   }
