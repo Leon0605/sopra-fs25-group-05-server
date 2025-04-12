@@ -57,8 +57,43 @@ public class User implements Serializable {
 
   private String birthday;
 
+  private ArrayList<Long> friendsList = new ArrayList<>();
+
+  private ArrayList<Long> receivedFriendRequestsList = new ArrayList<>();
+
+  private ArrayList<Long> sentFriendRequestsList = new ArrayList<>();
+  
   @Lob
   private String photo;
+  public void setReceivedFriendRequestsList(ArrayList<Long> receivedList){
+    this.receivedFriendRequestsList = receivedList;
+  }
+  public void setReceivedFriendRequest(Long userId){
+    this.receivedFriendRequestsList.add(userId);
+  }
+  public ArrayList<Long> getReceivedFriendRequestsList(){
+    return receivedFriendRequestsList;
+  }
+
+  public void setSentFriendRequestsList(ArrayList<Long> sentList){
+    this.sentFriendRequestsList = sentList;
+  }
+  public void setSentFriendRequest(Long userId){
+    this.sentFriendRequestsList.add(userId);
+  }
+  public ArrayList<Long> getSentFriendRequestsList(){
+    return sentFriendRequestsList;
+  }
+
+  public void setFriendsList(ArrayList<Long> friendsList){
+    this.friendsList = friendsList;
+  }
+  public void setFriend(Long userId){
+    this.friendsList.add(userId);
+  }
+  public ArrayList<Long> getFriendsList(){
+    return friendsList;
+  }
 
   public void setBirthday(String birthday){
     this.birthday = birthday;

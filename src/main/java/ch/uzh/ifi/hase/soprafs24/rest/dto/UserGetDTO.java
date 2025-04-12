@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
+import java.util.ArrayList;
+
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 
 public class UserGetDTO {
@@ -13,6 +15,30 @@ public class UserGetDTO {
   private String birthday;
   private String privacy;
   private String photo;
+  private ArrayList<Long> friendsList = new ArrayList<>();
+  private ArrayList<Long> sentFriendRequestsList = new ArrayList<>();
+  private ArrayList<Long> receivedFriendRequestsList = new ArrayList<>();
+
+  public void setReceivedFriendRequestsList(ArrayList<Long> receivedList){
+    this.receivedFriendRequestsList = receivedList;
+  }
+  public ArrayList<Long> getReceivedFriendRequestsList(){
+    return receivedFriendRequestsList;
+  }
+
+  public void setSentFriendRequestsList(ArrayList<Long> sentList){
+    this.sentFriendRequestsList = sentList;
+  }
+  public ArrayList<Long> getSentFriendRequestsList(){
+    return sentFriendRequestsList;
+  }
+
+  public void setFriendList(ArrayList<Long> friendsList){
+    this.friendsList = friendsList;
+  }
+  public ArrayList<Long> getFriendsList(){
+    return friendsList;
+  }
 
   public String getPhoto() {
       return photo;

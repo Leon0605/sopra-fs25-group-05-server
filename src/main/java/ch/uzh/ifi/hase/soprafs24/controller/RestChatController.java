@@ -3,14 +3,12 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 //Java Libraries
 import java.util.ArrayList;
 
-import ch.uzh.ifi.hase.soprafs24.entity.OutgoingMessage;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.OutgoingMessageDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,9 +16,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Chat;
 import ch.uzh.ifi.hase.soprafs24.entity.Message;
+import ch.uzh.ifi.hase.soprafs24.entity.OutgoingMessage;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.ChatRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatMessageDTO;
+import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.OutgoingMessageDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserChatDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.ChatService;
@@ -40,12 +40,12 @@ public class RestChatController {
         this.userRepository = userRepository;
     }
 
-    @GetMapping("/chat")
+    @GetMapping("/chats")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ArrayList<UserChatDTO> getAllChats() {
+    public ArrayList<UserChatDTO> getAllChats(@RequestHeader Long userId) {
 
-        ArrayList<String> chatsId = userService.findChatWithUserId(Long.valueOf(1));
+        ArrayList<String> chatsId = userService.findChatWithUserId(userId);
 
         ArrayList<UserChatDTO> userChatDTOs = new ArrayList<>();
 
@@ -58,7 +58,7 @@ public class RestChatController {
 
 
 
-    @GetMapping("/chat/{chatId}/{token}")
+    @GetMapping("/chats/{chatId}/{token}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
 
@@ -98,7 +98,7 @@ public class RestChatController {
     */
 
 
-    @PostMapping("/chat")
+    @PostMapping("/chats")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public String createChat(@RequestBody ArrayList<Long> userIds) {

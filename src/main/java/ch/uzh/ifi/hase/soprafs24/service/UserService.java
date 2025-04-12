@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
-
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserChangePasswordDTO;
@@ -59,11 +58,9 @@ public class UserService {
     }
     user.setPassword(userChangePasswordDTO.getNewPassword());
     userRepository.save(user);
-    userRepository.flush();
-
-    
-
+    userRepository.flush();    
   }
+
   public void updateUserProfilePictureWithUserId(Long userId, MultipartFile photo){
     
     User user = findByUserId(userId);
@@ -76,10 +73,8 @@ public class UserService {
     } catch (IOException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Picture format is wrong");
     }
-    
-   
-
   }
+
   public void updateUserWithUserId(Long userId, UserPutDTO userPutDTO){
     User user = findByUserId(userId);
     if(userPutDTO.getLanguage() != null){
@@ -135,35 +130,67 @@ public class UserService {
     checkIfUserExists(newUser);
     // saves the given entity but data is only persisted in the database once
     // flush() is called
-    List <User> otherUsers = !getUsers().isEmpty() ? getUsers() : new ArrayList<User>();
+    
     newUser = userRepository.save(newUser);
     userRepository.flush();
-    /*
-    for(User user: otherUsers){
-      if(!user.getId().equals(newUser.getId()) ){
-        ArrayList<User> users = new ArrayList<>();
-        users.add(newUser);
-        users.add(user);
-        Chat newChat = chatService.createChat(users); 
-        user.setChats(newChat.getChatId());
-        newUser.setChats(newChat.getChatId());
-        userRepository.save(user);
-        userRepository.save(newUser);
-        userRepository.flush();
-      }
-      
-    }
-
-     */
-    
+       
     log.debug("Created Information for User: {}", newUser);
     return newUser;
+  }
+
+  public void createFriendRequest(Long receiverUserId, String senderUserToken){
+    User sender = findByUserToken(senderUserToken);
+    User receiver = findByUserId(receiverUserId);
+    if(!sender.getToken().equals(senderUserToken)){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"The provied Token for the friend request sender is not vaild!");
+    }
+    if(receiver.getReceivedFriendRequestsList().contains(sender.getId()) && sender.getSentFriendRequestsList().contains(receiverUserId)){
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "You have already sent a friend request to this person!");
+    }
+
+    sender.setSentFriendRequest(receiverUserId);
+    receiver.setReceivedFriendRequest(sender.getId());
+
+    userRepository.save(sender);
+    userRepository.save(receiver);
+    userRepository.flush();
+  }
+
+  public void acceptFriendRequest(Long receiverUserId, String reiceiverUserToken, Long senderUserId){
+    User receiver = findByUserId(receiverUserId);
+    User sender = findByUserId(senderUserId);
+
+    if(!receiver.getToken().equals(reiceiverUserToken)){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"The provied Token for the friend request receiver is not vaild!");
+    }
+
+    sender.getSentFriendRequestsList().remove(receiverUserId);
+    receiver.getReceivedFriendRequestsList().remove(senderUserId);
+    sender.setFriend(receiverUserId);
+    receiver.setFriend(senderUserId);
+    ArrayList<User> users = new ArrayList<>();
+    users.add(sender);
+    users.add(receiver);
+    chatService.createChat(users);
+    userRepository.save(sender);
+    userRepository.save(receiver);
+    userRepository.flush();
+    
+  }
+  public User findByUserToken(String token){
+    System.out.println(token);
+
+    User user = userRepository.findByToken(token);
+    if(user == null){
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND,"User with Token not found");
+    }
+    return user;
   }
 
   public User findByUserId(Long userId){
     Optional<User> userOptional = userRepository.findById(userId);
     if(userOptional.isEmpty()){
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND,"User not found");
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND,"User with Id not found");
     }
     return userOptional.get();
   }
