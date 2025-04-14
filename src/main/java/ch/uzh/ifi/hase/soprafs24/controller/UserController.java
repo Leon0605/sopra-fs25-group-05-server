@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-//Google Cloud Deployment Test
+//Google Cloud Deployment Test 2
 /**
  * User Controller
  * This class is responsible for handling all REST request that are related to
