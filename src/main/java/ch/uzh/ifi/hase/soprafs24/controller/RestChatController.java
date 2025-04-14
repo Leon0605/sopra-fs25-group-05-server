@@ -67,6 +67,9 @@ public class RestChatController {
         ArrayList<Message> messages = chatService.getAllMessageWithChatId(chatId);
         token = token.replace("\"", "").trim();
         User user = userRepository.findByToken(token);
+        if (user == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
         String userLanguage = user.getLanguage();
         ArrayList<OutgoingMessageDTO> outgoingMessageDTOS = new ArrayList<>();
 

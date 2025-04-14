@@ -62,7 +62,7 @@ public class UserService {
   }
 
   public void updateUserProfilePictureWithUserId(Long userId, MultipartFile photo){
-    
+
     User user = findByUserId(userId);
     try {
       String base64 = Base64.getEncoder().encodeToString(photo.getBytes());
@@ -101,13 +101,13 @@ public class UserService {
   }
   public void performLogout(Long userId){
 
-    Optional<User> foundUser = userRepository.findById(userId);
-    if( foundUser.isEmpty()){
+    User foundUser = findByUserId(userId);
+    if( foundUser == null){
       throw new ResponseStatusException(HttpStatus.NOT_FOUND,"User not found");
     }
-    User convertedUser = foundUser.get();
-    convertedUser.setStatus(UserStatus.OFFLINE);
-    userRepository.save(convertedUser);
+    //User convertedUser = foundUser;
+    foundUser.setStatus(UserStatus.OFFLINE);
+    userRepository.save(foundUser);
   }
 
   public User verifyLogin(User user){
@@ -178,7 +178,6 @@ public class UserService {
     
   }
   public User findByUserToken(String token){
-    System.out.println(token);
 
     User user = userRepository.findByToken(token);
     if(user == null){
