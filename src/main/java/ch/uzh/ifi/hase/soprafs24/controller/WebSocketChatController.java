@@ -44,7 +44,7 @@ public class WebSocketChatController {
         Message message = chatService.CreateMessage(sentMessage);
         String original = sentMessage.getContent();
         long senderID = sentMessage.getUserId();
-        User sender = userRepository.findById(senderID);
+        User sender = userService.findByUserId(senderID);
         String senderLanguage = sender.getLanguage();
         // Api Call for Translation
         String chatId = message.getChatId();
