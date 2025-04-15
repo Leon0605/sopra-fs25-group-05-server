@@ -24,7 +24,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
-//Initial commit: Server Test
+
 /**
  * User Controller
  * This class is responsible for handling all REST request that are related to
