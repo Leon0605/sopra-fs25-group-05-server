@@ -13,7 +13,7 @@ import javax.persistence.Table;
 public class Chat implements Serializable {
     @Id
     private String chatId;
-    private long userId;
+    //private Long userId;
     private ArrayList<String> messagesId = new ArrayList<>();
     private HashSet<String> languages = new HashSet<>();
 
@@ -24,13 +24,13 @@ public class Chat implements Serializable {
         return chatId;
     }
 
-    public void setUserId(long userId){
+    /*public void setUserId(long userId){
         this.userId = userId;
     }
     public long getUserId(){
         return userId;
     }
-    
+    */
     public void setMessagesId(String messageId){
         this.messagesId.add(messageId);
     }   
