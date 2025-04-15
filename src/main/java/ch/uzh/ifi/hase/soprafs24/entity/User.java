@@ -1,9 +1,16 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
-import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
-
-import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.Table;
+
+import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 
 /**
  * Internal User Representation
@@ -26,8 +33,7 @@ public class User implements Serializable {
   @GeneratedValue
   private Long id;
 
-  @Column(nullable = false)
-  private String name;
+  
 
   @Column(nullable = false, unique = true)
   private String username;
@@ -38,6 +44,96 @@ public class User implements Serializable {
   @Column(nullable = false)
   private UserStatus status;
 
+  @Column(nullable = false)
+  private String password;
+
+  private ArrayList<String> chats = new ArrayList<>();
+  
+  private String language;
+
+  private String learningLanguage;
+
+  private String privacy;
+
+  private String birthday;
+
+  private ArrayList<Long> friendsList = new ArrayList<>();
+
+  private ArrayList<Long> receivedFriendRequestsList = new ArrayList<>();
+
+  private ArrayList<Long> sentFriendRequestsList = new ArrayList<>();
+  
+  @Lob
+  private String photo;
+  public void setReceivedFriendRequestsList(ArrayList<Long> receivedList){
+    this.receivedFriendRequestsList = receivedList;
+  }
+  public void setReceivedFriendRequest(Long userId){
+    this.receivedFriendRequestsList.add(userId);
+  }
+  public ArrayList<Long> getReceivedFriendRequestsList(){
+    return receivedFriendRequestsList;
+  }
+
+  public void setSentFriendRequestsList(ArrayList<Long> sentList){
+    this.sentFriendRequestsList = sentList;
+  }
+  public void setSentFriendRequest(Long userId){
+    this.sentFriendRequestsList.add(userId);
+  }
+  public ArrayList<Long> getSentFriendRequestsList(){
+    return sentFriendRequestsList;
+  }
+
+  public void setFriendsList(ArrayList<Long> friendsList){
+    this.friendsList = friendsList;
+  }
+  public void setFriend(Long userId){
+    this.friendsList.add(userId);
+  }
+  public ArrayList<Long> getFriendsList(){
+    return friendsList;
+  }
+
+  public void setBirthday(String birthday){
+    this.birthday = birthday;
+  }
+
+  public String getBirthday(){
+    return birthday;
+  }
+  public void setLearningLanguage(String learningLanguage){
+    this.learningLanguage = learningLanguage;
+  }
+
+  public String getLearningLanguage(){
+    return learningLanguage;
+  }
+  public void setPrivacy(String privacy){
+    this.privacy = privacy;
+  }
+  public String getPrivacy(){
+    return privacy;
+  }
+  
+  public String getPhoto() {
+      return photo;
+  }
+  public void setPhoto(String photo) {
+      this.photo = photo;
+  }
+  public void setChats(String chatId){
+    this.chats.add(chatId);
+  }
+  public ArrayList <String> getChats(){
+    return chats;
+  }
+  public void setPassword(String password){
+    this.password=password;
+  }
+  public String getPassword(){
+    return password;
+  }
   public Long getId() {
     return id;
   }
@@ -46,13 +142,6 @@ public class User implements Serializable {
     this.id = id;
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
 
   public String getUsername() {
     return username;
@@ -76,5 +165,11 @@ public class User implements Serializable {
 
   public void setStatus(UserStatus status) {
     this.status = status;
+  }
+  public String getLanguage(){
+    return language;
+  }
+  public void setLanguage(String language){
+    this.language=language;
   }
 }

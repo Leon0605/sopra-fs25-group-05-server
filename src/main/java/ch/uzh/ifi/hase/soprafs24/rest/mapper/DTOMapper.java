@@ -1,10 +1,18 @@
 package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
-import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.entity.*;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserChatDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.IncomingChatMessageDTO;
+
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
+
+import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatMessageDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginDTO;
+
+import ch.uzh.ifi.hase.soprafs24.rest.dto.OutgoingMessageDTO;
 
 /**
  * DTOMapper
@@ -22,13 +30,55 @@ public interface DTOMapper {
 
   DTOMapper INSTANCE = Mappers.getMapper(DTOMapper.class);
 
-  @Mapping(source = "name", target = "name")
+  @Mapping(source = "password", target = "password")
   @Mapping(source = "username", target = "username")
+  @Mapping(source = "id", target = "id")
   User convertUserPostDTOtoEntity(UserPostDTO userPostDTO);
 
   @Mapping(source = "id", target = "id")
-  @Mapping(source = "name", target = "name")
   @Mapping(source = "username", target = "username")
   @Mapping(source = "status", target = "status")
+  @Mapping(source = "language", target ="language")
+  @Mapping(source = "learningLanguage", target ="learningLanguage")
+  @Mapping(source = "privacy", target ="privacy")
+  @Mapping(source = "birthday", target ="birthday")
+  @Mapping(source = "photo", target ="photo")
+  @Mapping(source = "friendsList", target ="friendsList")
+  @Mapping(source = "sentFriendRequestsList", target ="sentFriendRequestsList")
+  @Mapping(source = "receivedFriendRequestsList", target ="receivedFriendRequestsList")
   UserGetDTO convertEntityToUserGetDTO(User user);
+
+  @Mapping(source = "id", target = "id")
+  @Mapping(source = "username", target = "username")
+  @Mapping(source = "status", target = "status")
+  @Mapping(source = "token", target = "token")
+  UserLoginDTO convertEntityToUserLoginDTO(User user);
+
+  @Mapping(source = "userIds", target = "userIds")
+  @Mapping(source = "chatId", target = "chatId")
+  UserChatDTO convertChatEntityToUserChatDTO(Chat chat);
+
+
+  @Mapping(source = "userId", target = "userId")
+  @Mapping(source = "chatId", target = "chatId")
+  @Mapping(source = "messageId", target = "messageId")
+  @Mapping(source = "languageMapping", target = "languageMapping")
+  
+  ChatMessageDTO convertMessageEntityToChatMessageDTO(Message message);
+  //Message convertMessageDTOToMessageEntity(ChatMessageDTO messageDTO);
+
+
+
+  @Mapping(source = "userId", target = "userId")
+  @Mapping(source = "chatId", target = "chatId")
+  @Mapping(source = "content", target = "content")
+  IncomingMessage convertIncomingChatMessageDTOToIncomingMessage(IncomingChatMessageDTO incomingChatMessageDTO);
+
+
+  @Mapping(source = "userId", target = "userId")
+    @Mapping(source = "messageId", target="messageId")
+    @Mapping(source = "chatId", target = "chatId")
+    @Mapping(source = "originalMessage", target = "originalMessage")
+    @Mapping(source = "translatedMessage", target = "translatedMessage")
+    OutgoingMessageDTO convertOutgoingMessageToOutgoingMessageDTO(OutgoingMessage outgoingMessage);
 }
