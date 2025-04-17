@@ -1,4 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.service;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.UUID;
@@ -11,14 +14,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.constant.LanguageMapping;
-import ch.uzh.ifi.hase.soprafs24.entity.Chat;
-import ch.uzh.ifi.hase.soprafs24.entity.IncomingMessage;
-import ch.uzh.ifi.hase.soprafs24.entity.Message;
-import ch.uzh.ifi.hase.soprafs24.entity.OutgoingMessage;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.repository.ChatRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.MessageRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Chat;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.IncomingMessage;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Message;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.OutgoingMessage;
+import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
+import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.ChatRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.MessageRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
 
 
 @Service
@@ -84,31 +87,14 @@ public class ChatService {
         String originalMessage = incomingMessage.getContent();
         message.setChatId(incomingMessage.getChatId());
         message.setUserId(senderID);
-        //ArrayList<User> messageReceivers = new ArrayList<>();
-
-        //for(Long receiverId: chatRepository.findByChatId(chatId).getUserIds()){
-            //if(!receiverId.equals(senderId)){
-                //messageReceivers.add(userService.findByUserId(receiverId));
-            //}
-            
-        //}
 
         String senderLanguage = userService.findByUserId(senderID).getLanguage();
         languageMap.setContent(senderLanguage, originalMessage);
 
-        /*for(User receiverUser : userService.findByUserId(chatRepository.findByChatId(chatId).getUserIds())){
-            String receiverLanguage = receiverUser.getLanguage();
-            if(!receiverLanguage.equals(senderLanguage)){
-                String translation = AzureAPI.AzureTranslate(messageText, senderLanguage, receiverLanguage);
-                languageMap.setContent(receiverLanguage,translation);
-            }
-        }
-
-         */
 
         message.setMessageId(UUID.randomUUID().toString());
         message.setLanguageMapping(languageMap);
-        //timestamp missing
+        message.setTimestamp(LocalDateTime.now(ZoneId.of("Europe/Zurich")));
         return message;
     }
     public void saveMessage(Message message){
@@ -127,6 +113,7 @@ public class ChatService {
         long SenderId = message.getUserId();
         User sender = userService.findByUserId(SenderId);
         OutgoingMessage outgoingMessage = new OutgoingMessage();
+        outgoingMessage.setTimestamp(message.getTimestamp().format(DateTimeFormatter.ofPattern("dd.MM.yyyy,HH:mm")));
         outgoingMessage.setMessageId(message.getMessageId());
         outgoingMessage.setChatId(message.getChatId());
         outgoingMessage.setUserId(SenderId);

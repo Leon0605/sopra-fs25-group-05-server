@@ -16,13 +16,15 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserChangePasswordDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPutDTO;
+import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserChangePasswordDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserLoginDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserPutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs24.service.UserService;
+
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 
 /**
