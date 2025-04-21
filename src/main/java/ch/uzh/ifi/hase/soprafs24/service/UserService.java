@@ -165,13 +165,18 @@ public class UserService {
     }
 
     sender.getSentFriendRequestsList().remove(receiverUserId);
+    sender.getReceivedFriendRequestsList().remove(receiverUserId);
     receiver.getReceivedFriendRequestsList().remove(senderUserId);
+    receiver.getSentFriendRequestsList().remove(senderUserId);
+
     sender.setFriend(receiverUserId);
     receiver.setFriend(senderUserId);
+
     ArrayList<User> users = new ArrayList<>();
     users.add(sender);
     users.add(receiver);
     chatService.createChat(users);
+
     userRepository.save(sender);
     userRepository.save(receiver);
     userRepository.flush();
