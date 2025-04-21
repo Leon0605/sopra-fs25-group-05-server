@@ -38,7 +38,7 @@ public class ChatService {
     }
     public Chat createChat(ArrayList<User> users) {
         if (users == null || users.size() < 2) {
-            throw new IllegalArgumentException("A chat must have at least two users.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A chat must have at least two users.");
         }
     
         Chat newChat = new Chat();
@@ -46,7 +46,7 @@ public class ChatService {
         HashSet<String> languages = new HashSet<>();
 
         newChat.setUserIds(userIds); 
-        newChat.setChatId(UUID.randomUUID().toString());
+        newChat.setChatId(generateId());
         newChat.setLanguages(languages);
 
         for (User user : users) {
@@ -106,7 +106,7 @@ public class ChatService {
 
          */
 
-        message.setMessageId(UUID.randomUUID().toString());
+        message.setMessageId(generateId());
         message.setLanguageMapping(languageMap);
         //timestamp missing
         return message;
@@ -133,5 +133,9 @@ public class ChatService {
         outgoingMessage.setOriginalMessage(message.getLanguageMapping().getContent(sender.getLanguage()));
         outgoingMessage.setTranslatedMessage(message.getLanguageMapping().getContent(Language));
         return outgoingMessage;
+    }
+
+    public String generateId(){  //can be private but in order to test is set to public
+        return UUID.randomUUID().toString();
     }
 }
