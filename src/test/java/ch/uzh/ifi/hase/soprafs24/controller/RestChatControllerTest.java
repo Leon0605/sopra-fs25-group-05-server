@@ -1,9 +1,13 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
 
+
+import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.ChatRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.UserChatDTO;
+
 import ch.uzh.ifi.hase.soprafs24.entity.Message;
 import ch.uzh.ifi.hase.soprafs24.entity.OutgoingMessage;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.service.ChatService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,9 +32,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.ArrayList;
 
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.entity.Chat;
-import ch.uzh.ifi.hase.soprafs24.repository.ChatRepository;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Chat;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Message;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.OutgoingMessage;
+import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
 
 @WebMvcTest(RestChatController.class)
 public class RestChatControllerTest {

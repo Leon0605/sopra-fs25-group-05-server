@@ -3,23 +3,23 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 //Java Libraries
 
 
-import ch.uzh.ifi.hase.soprafs24.rest.dto.IncomingChatMessageDTO;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-import ch.uzh.ifi.hase.soprafs24.repository.ChatRepository;
+import ch.uzh.ifi.hase.soprafs24.constant.LanguageMapping;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Chat;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.IncomingMessage;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Message;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.OutgoingMessage;
+import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
+import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.ChatRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.IncomingChatMessageDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs24.service.API.AzureAPI;
 import ch.uzh.ifi.hase.soprafs24.service.ChatService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
-import ch.uzh.ifi.hase.soprafs24.constant.LanguageMapping;
-import ch.uzh.ifi.hase.soprafs24.entity.IncomingMessage;
-import ch.uzh.ifi.hase.soprafs24.service.API.AzureAPI;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.entity.Chat;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.entity.Message;
-import ch.uzh.ifi.hase.soprafs24.entity.OutgoingMessage;
-import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 
 @Controller
 public class WebSocketChatController {

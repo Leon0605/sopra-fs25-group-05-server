@@ -1,4 +1,4 @@
-package ch.uzh.ifi.hase.soprafs24.entity;
+package ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities;
 
 import java.io.Serializable;
 import java.util.ArrayList;

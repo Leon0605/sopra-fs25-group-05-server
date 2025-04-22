@@ -1,18 +1,26 @@
 package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
-import ch.uzh.ifi.hase.soprafs24.entity.*;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserChatDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.IncomingChatMessageDTO;
+
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Chat;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.IncomingMessage;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Message;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.OutgoingMessage;
+import ch.uzh.ifi.hase.soprafs24.entity.FlashcardEntities.Flashcard;
+import ch.uzh.ifi.hase.soprafs24.entity.FlashcardEntities.FlashcardSet;
+import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.ChatMessageDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.IncomingChatMessageDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.OutgoingMessageDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.UserChatDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserLoginDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserPostDTO;
 
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatMessageDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginDTO;
-
-import ch.uzh.ifi.hase.soprafs24.rest.dto.OutgoingMessageDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.FlashcardDTO.FlashcardGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.FlashcardDTO.FlashcardSetGetDTO;
 
 /**
  * DTOMapper
@@ -76,9 +84,21 @@ public interface DTOMapper {
 
 
   @Mapping(source = "userId", target = "userId")
-    @Mapping(source = "messageId", target="messageId")
-    @Mapping(source = "chatId", target = "chatId")
-    @Mapping(source = "originalMessage", target = "originalMessage")
-    @Mapping(source = "translatedMessage", target = "translatedMessage")
-    OutgoingMessageDTO convertOutgoingMessageToOutgoingMessageDTO(OutgoingMessage outgoingMessage);
+  @Mapping(source = "messageId", target="messageId")
+  @Mapping(source = "chatId", target = "chatId")
+  @Mapping(source = "originalMessage", target = "originalMessage")
+  @Mapping(source = "translatedMessage", target = "translatedMessage")
+  @Mapping(source = "timestamp", target = "timestamp")
+  OutgoingMessageDTO convertOutgoingMessageToOutgoingMessageDTO(OutgoingMessage outgoingMessage);
+    
+  @Mapping(source = "flashcardSetName", target = "flashcardSetName")
+  @Mapping(source = "learningLanguage", target = "learningLanguage")
+  @Mapping(source = "flashcardSetId", target = "flashcardSetId")
+  FlashcardSetGetDTO convertFlashcardSetEntityToFlashcardSetGetDTO(FlashcardSet flashcardSet);
+  
+  @Mapping(source = "flashcardId", target = "flashcardId")
+  @Mapping(source = "contentFront", target = "contentFront")
+  @Mapping(source = "contentBack", target = "contentBack")
+  @Mapping(source = "learningLanguage", target = "learningLanguage")
+  FlashcardGetDTO  convertFlashcardEntityToFlashcardGetDTO(Flashcard flashcard);
 }

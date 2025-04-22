@@ -13,8 +13,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
+import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
 
 /**
  * Test class for the UserResource REST resource.

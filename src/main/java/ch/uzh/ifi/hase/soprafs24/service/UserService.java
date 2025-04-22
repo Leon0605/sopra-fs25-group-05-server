@@ -19,10 +19,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserChangePasswordDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPutDTO;
+import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
+import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserChangePasswordDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserPutDTO;
 
 
 
@@ -64,15 +64,17 @@ public class UserService {
   public void updateUserProfilePictureWithUserId(Long userId, MultipartFile photo){
 
     User user = findByUserId(userId);
+    String dataUrl;
     try {
       String base64 = Base64.getEncoder().encodeToString(photo.getBytes());
-      String dataUrl = "data:image/png;base64," + base64;
-      user.setPhoto(dataUrl);
-      userRepository.save(user);
-      userRepository.flush();
+      dataUrl = "data:image/png;base64," + base64;
+     
     } catch (IOException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Picture format is wrong");
     }
+    user.setPhoto(dataUrl);
+    userRepository.save(user);
+    userRepository.flush();
   }
 
   public void updateUserWithUserId(Long userId, UserPutDTO userPutDTO){
