@@ -6,8 +6,8 @@ import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.ChatRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.UserChatDTO;
 
-import ch.uzh.ifi.hase.soprafs24.entity.Message;
-import ch.uzh.ifi.hase.soprafs24.entity.OutgoingMessage;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Message;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.OutgoingMessage;
 import ch.uzh.ifi.hase.soprafs24.service.ChatService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
