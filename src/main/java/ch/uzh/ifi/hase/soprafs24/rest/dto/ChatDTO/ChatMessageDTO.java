@@ -1,7 +1,4 @@
-package ch.uzh.ifi.hase.soprafs24.rest.dto;
-
-import java.util.HashMap;
-import java.util.Map;
+package ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO;
 
 import ch.uzh.ifi.hase.soprafs24.constant.LanguageMapping;
 

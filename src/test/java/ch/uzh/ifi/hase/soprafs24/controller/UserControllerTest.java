@@ -3,8 +3,11 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 import java.util.Collections;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import org.junit.jupiter.api.Test;
 import static org.mockito.BDDMockito.given;
 import org.mockito.Mockito;
@@ -25,8 +28,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 
 /**
@@ -43,6 +46,27 @@ public class UserControllerTest {
 
   @MockBean
   private UserService userService;
+
+  @Test
+  public void givenValidInput_loginSuccess_returnsToken() throws Exception {
+      User testUser = new User();
+      testUser.setPassword("password");
+      testUser.setUsername("username");
+      testUser.setId(1L);
+      testUser.setToken("token");
+
+      UserPostDTO userPostDTO  = new UserPostDTO();
+      userPostDTO.setUsername(testUser.getUsername());
+      userPostDTO.setPassword(testUser.getPassword());
+      userPostDTO.setId(testUser.getId());
+
+      given(userService.verifyLogin(any(User.class))).willReturn(testUser);
+
+      MockHttpServletRequestBuilder request = post("/login").contentType(MediaType.APPLICATION_JSON).content(asJsonString(userPostDTO));
+      mockMvc.perform(request).andExpect(status().isOk())
+              .andExpect(jsonPath("$.token", is(testUser.getToken())));
+
+  }
 
   @Test
   public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
@@ -71,6 +95,25 @@ public class UserControllerTest {
   }
 
   @Test
+  public void givenUserId_whenGetAllFriends_theReturnJsonArray() throws Exception {
+      User testUser = new User();
+      testUser.setId(1L);
+
+      User testFriend = new User();
+      testFriend.setId(2L);
+
+      testUser.setFriend(testFriend.getId());
+
+      given(userService.findByUserId(testUser.getId())).willReturn(testUser);
+      given(userService.findByUserId(testFriend.getId())).willReturn(testFriend);
+
+      MockHttpServletRequestBuilder getRequest = get("/users/"+testUser.getId()+"/friends").contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(getRequest).andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(testFriend.getId().intValue())));
+  }
+  /*@Test
   public void createUser_validInput_userCreated() throws Exception {
     // given
     User user = new User();
@@ -99,15 +142,17 @@ public class UserControllerTest {
         .andExpect(jsonPath("$.username", is(user.getUsername())))
         .andExpect(jsonPath("$.status", is(user.getStatus().toString())));
   }
-
-  /**
+   /*
    * Helper Method to convert userPostDTO into a JSON string such that the input
    * can be processed
    * Input will look like this: {"name": "Test User", "username": "testUsername"}
    * 
    * @param object
    * @return string
+
+
    */
+
   private String asJsonString(final Object object) {
     try {
       return new ObjectMapper().writeValueAsString(object);

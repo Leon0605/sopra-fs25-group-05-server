@@ -1,8 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserChangePasswordDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPutDTO;
-import org.apache.coyote.Response;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserChangePasswordDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserPutDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -10,8 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
+import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
 

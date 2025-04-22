@@ -1,6 +1,6 @@
-package ch.uzh.ifi.hase.soprafs24.entity;
+package ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities;
 import java.io.Serializable;
-
+import java.time.LocalDateTime;
 
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -21,6 +21,16 @@ public class Message implements Serializable  {
 
     @Embedded
     private LanguageMapping languageMapping;
+
+    private LocalDateTime timestamp;
+    
+    
+    public LocalDateTime getTimestamp(){
+        return timestamp;
+    }
+    public void setTimestamp(LocalDateTime timestamp){
+        this.timestamp =timestamp;
+    }
 
     public LanguageMapping getLanguageMapping() {
         return languageMapping;

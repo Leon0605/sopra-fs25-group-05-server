@@ -1,4 +1,4 @@
-package ch.uzh.ifi.hase.soprafs24.entity;
+package ch.uzh.ifi.hase.soprafs24.entity.UserEntities;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -63,8 +63,18 @@ public class User implements Serializable {
 
   private ArrayList<Long> sentFriendRequestsList = new ArrayList<>();
   
+  private ArrayList<String> flashcardSetsIds = new ArrayList<>();
+
   @Lob
   private String photo;
+
+  public void setFlashcardSetId(String flashcardSetId){
+    this.flashcardSetsIds.add(flashcardSetId);
+  }
+  public ArrayList<String> getFlashcardSetsIds(){
+    return flashcardSetsIds;
+  }
+
   public void setReceivedFriendRequestsList(ArrayList<Long> receivedList){
     this.receivedFriendRequestsList = receivedList;
   }

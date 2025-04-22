@@ -1,9 +1,10 @@
-package ch.uzh.ifi.hase.soprafs24.entity;
+package ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities;
+
+import java.io.Serializable;
 
 import javax.persistence.Entity;
-import javax.persistence.Table;
 import javax.persistence.Id;
-import java.io.Serializable;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "INCOMINGMESSAGE")
