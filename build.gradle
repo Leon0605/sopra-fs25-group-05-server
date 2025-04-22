@@ -68,7 +68,8 @@ sonar {
         property "sonar.projectKey", "Leon0605_sopra-fs25-group-05-server"
         property "sonar.organization", "leon0605"
         property "sonar.host.url", "https://sonarcloud.io"
-        property "sonar.projectName", "soprafs24"
+        property "sonar.projectName", "sopra-fs25-group-05"
+        property "sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
     }
 }
 //:)
