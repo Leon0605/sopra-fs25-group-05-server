@@ -37,7 +37,7 @@ public class WebSocketChatController {
         this.userRepository = userRepository;
     }
 
-    @MessageMapping("/1")
+    @MessageMapping("/MessageHandler")
     public void handleChatMessage(IncomingChatMessageDTO incomingMessage){
         //create Message object + generate additional data (MessageID, TimeStamp, Status)
         IncomingMessage sentMessage = DTOMapper.INSTANCE.convertIncomingChatMessageDTOToIncomingMessage(incomingMessage);
@@ -57,8 +57,9 @@ public class WebSocketChatController {
                     languageMap.setContent(language, translation);
                 }
                 OutgoingMessage outgoingMessage = chatService.transformMessageToOutput(message, language);
-                String Destination = "/topic/1/messages";
-                //String Destination = "/topic/" + language + chatId;
+                //String Destination = "/topic/1/messages";
+
+                String Destination =  "/topic/" + language +"/"+ chatId;
                 messageTemplate.convertAndSend(Destination, outgoingMessage);
             }
         }

@@ -2,8 +2,6 @@ package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserChangePasswordDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserPutDTO;
-
-import org.apache.coyote.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
