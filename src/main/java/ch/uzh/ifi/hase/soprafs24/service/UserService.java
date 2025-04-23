@@ -143,11 +143,12 @@ public class UserService {
   public void createFriendRequest(Long receiverUserId, String senderUserToken){
     User sender = findByUserToken(senderUserToken);
     User receiver = findByUserId(receiverUserId);
-    if(!sender.getToken().equals(senderUserToken)){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"The provied Token for the friend request sender is not vaild!");
-    }
+    
     if(receiver.getReceivedFriendRequestsList().contains(sender.getId()) && sender.getSentFriendRequestsList().contains(receiverUserId)){
       throw new ResponseStatusException(HttpStatus.CONFLICT, "You have already sent a friend request to this person!");
+    }
+    if(receiver.getFriendsList().contains(sender.getId()) && sender.getFriendsList().contains(receiver.getId())){
+      throw new ResponseStatusException(HttpStatus.CONFLICT,"Users are already friends");
     }
 
     sender.setSentFriendRequest(receiverUserId);
@@ -165,7 +166,9 @@ public class UserService {
     if(!receiver.getToken().equals(reiceiverUserToken)){
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"The provied Token for the friend request receiver is not vaild!");
     }
-
+    if(receiver.getFriendsList().contains(sender.getId()) && sender.getFriendsList().contains(receiver.getId())){
+      throw new ResponseStatusException(HttpStatus.CONFLICT,"Users are already friends");
+    }
     sender.getSentFriendRequestsList().remove(receiverUserId);
     sender.getReceivedFriendRequestsList().remove(receiverUserId);
     receiver.getReceivedFriendRequestsList().remove(senderUserId);
