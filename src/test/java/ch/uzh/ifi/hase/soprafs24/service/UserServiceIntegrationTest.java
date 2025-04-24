@@ -9,6 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserPostDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,6 +28,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
 import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.ChatRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
+
 
 /**
  * Test class for the UserResource REST resource.
@@ -263,4 +267,7 @@ public class UserServiceIntegrationTest {
 
     assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
   }
+
+
+
 }
