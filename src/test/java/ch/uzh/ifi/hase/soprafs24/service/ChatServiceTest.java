@@ -150,6 +150,7 @@ public class ChatServiceTest {
         assertEquals(testMessage.getMessageId(), actualMessage.getMessageId());
         assertEquals(testMessage.getChatId(), actualMessage.getChatId());
         assertEquals(testMessage.getLanguageMapping(), actualMessage.getLanguageMapping());
+        assertNotNull(actualMessage.getTimestamp());
     }
 
     /*@Test

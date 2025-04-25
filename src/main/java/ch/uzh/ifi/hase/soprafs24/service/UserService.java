@@ -110,6 +110,7 @@ public class UserService {
     //User convertedUser = foundUser;
     foundUser.setStatus(UserStatus.OFFLINE);
     userRepository.save(foundUser);
+    userRepository.flush();
   }
 
   public User verifyLogin(User user){
@@ -181,7 +182,6 @@ public class UserService {
     users.add(sender);
     users.add(receiver);
     chatService.createChat(users);
-
     userRepository.save(sender);
     userRepository.save(receiver);
     userRepository.flush();

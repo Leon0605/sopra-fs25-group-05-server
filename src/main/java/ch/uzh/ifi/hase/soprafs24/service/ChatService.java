@@ -57,9 +57,8 @@ public class ChatService {
             languages.add(user.getLanguage());
             user.setChats(newChat.getChatId());
             userRepository.save(user);
-            userRepository.flush();
         }
-
+        userRepository.flush();
         chatRepository.save(newChat);
         chatRepository.flush();
         
