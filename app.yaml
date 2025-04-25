@@ -3,7 +3,12 @@
 
 runtime: java
 env: flex
+
+runtime_config:
+  jdk: openjdk17
+
 instance_class: F2
+
 
 network:
   session_affinity: true
