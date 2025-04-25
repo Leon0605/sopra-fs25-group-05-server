@@ -5,7 +5,6 @@ on:
     branches:
       - main
 
-  # run the workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
@@ -49,8 +48,39 @@ jobs:
         uses: google-github-actions/deploy-appengine@v0.2.0
         with:
           deliverables: app.yaml
-          version: v2
           credentials: ${{ secrets.GCP_SERVICE_CREDENTIALS }}
+
+      - name: Stop previous versions
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_CREDENTIALS }}
+
+      - name: Disable older versions
+        run: |
+          PROJECT_ID=$(echo '${{ secrets.GCP_SERVICE_CREDENTIALS }}' | jq -r '.project_id')
+          CURRENT_SERVICE="default"
+
+          CURRENT_VERSION=$(curl -s -X GET \
+            -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+            "https://appengine.googleapis.com/v1/apps/$PROJECT_ID/services/$CURRENT_SERVICE/versions" | \
+            jq -r '.versions | sort_by(.createTime) | last | .id')
+
+          echo "Currently deployed version: $CURRENT_VERSION"
+
+          echo "Fetching deployed versions..."
+          VERSIONS=$(curl -s -X GET \
+            -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+            "https://appengine.googleapis.com/v1/apps/$PROJECT_ID/services/$CURRENT_SERVICE/versions")
+
+          echo "$VERSIONS" | jq -c '.versions[] | select(.id != "'$CURRENT_VERSION'")' | while read version; do
+            VERSION_ID=$(echo "$version" | jq -r '.id')
+            echo "Stopping version: $VERSION_ID"
+            curl -s -X PATCH \
+              -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+              -H "Content-Type: application/json" \
+              -d '{"servingStatus":"STOPPED"}' \
+              "https://appengine.googleapis.com/v1/apps/$PROJECT_ID/services/$CURRENT_SERVICE/versions/$VERSION_ID"
+          done
 
       - name: Test
         run: curl "${{ steps.deploy.outputs.url }}"
