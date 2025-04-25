@@ -13,7 +13,7 @@ import javax.persistence.Lob;
 
 
 @Embeddable
-public class LanguageMapping{ //extends HashMap<String, String> {
+public class LanguageMapping extends HashMap<String, String> {
 
     @ElementCollection
     @CollectionTable(name = "message_language_mapping", joinColumns = @JoinColumn(name = "message_id"))
