@@ -165,6 +165,7 @@ public class ChatServiceTest {
 
     @Test
     public void transformMessageToOutput_Success(){
+        testMessage.setOriginal("Hello");
         OutgoingMessage expectedOutgoingMessage = new OutgoingMessage();
         testMessage.setTimestamp(LocalDateTime.now(ZoneId.of("Europe/Zurich")));
         expectedOutgoingMessage.setChatId(testChat.getChatId());

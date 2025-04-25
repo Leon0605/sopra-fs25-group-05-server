@@ -84,6 +84,7 @@ public class ChatService {
         LanguageMapping languageMap= new LanguageMapping();
         Long senderID = incomingMessage.getUserId();
         String originalMessage = incomingMessage.getContent();
+        message.setOriginal(originalMessage);
         message.setChatId(incomingMessage.getChatId());
         message.setUserId(senderID);
 
@@ -116,7 +117,7 @@ public class ChatService {
         outgoingMessage.setMessageId(message.getMessageId());
         outgoingMessage.setChatId(message.getChatId());
         outgoingMessage.setUserId(SenderId);
-        outgoingMessage.setOriginalMessage(message.getLanguageMapping().getContent(sender.getLanguage()));
+        outgoingMessage.setOriginalMessage(message.getOriginal());
         outgoingMessage.setTranslatedMessage(message.getLanguageMapping().getContent(Language));
         return outgoingMessage;
     }

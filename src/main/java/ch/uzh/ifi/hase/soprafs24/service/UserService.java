@@ -1,12 +1,13 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Chat;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Message;
+import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.ChatRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.MessageRepository;
+import ch.uzh.ifi.hase.soprafs24.service.API.AzureAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,12 +42,16 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final ChatService chatService;
+    private final ChatRepository chatRepository;
+    private final MessageRepository messageRepository;
 
-  @Autowired
-  public UserService(@Qualifier("userRepository") UserRepository userRepository,@Lazy ChatService chatService) {
+    @Autowired
+  public UserService(@Qualifier("userRepository") UserRepository userRepository, @Lazy ChatService chatService, ChatRepository chatRepository, MessageRepository messageRepository) {
     this.userRepository = userRepository;
     this.chatService = chatService;
-  }
+        this.chatRepository = chatRepository;
+        this.messageRepository = messageRepository;
+    }
 
   public void changeUserPassword(Long userId, String token, UserChangePasswordDTO userChangePasswordDTO){
     User user = findByUserId(userId);
@@ -80,7 +85,27 @@ public class UserService {
   public void updateUserWithUserId(Long userId, UserPutDTO userPutDTO){
     User user = findByUserId(userId);
     if(userPutDTO.getLanguage() != null){
-      user.setLanguage(userPutDTO.getLanguage());
+      String language = userPutDTO.getLanguage();
+      user.setLanguage(language);
+      for(String chatId: user.getChats()){
+          Chat chat = chatRepository.findByChatId(chatId);
+          for(String messageId: chat.getMessagesId()){
+              Message message = messageRepository.findByMessageId(messageId);
+              if(message.getLanguageMapping().getContent(language) == null){
+                  String translation = AzureAPI.AzureTranslate(message.getOriginal(), message.getOriginalLanguage(), language);
+                  message.getLanguageMapping().setContent(language, translation);
+                  messageRepository.save(message);
+                  messageRepository.flush();
+              }
+          }
+          HashSet<String> chatLanguages = new HashSet<>();
+          for(Long userIds: chat.getUserIds()){
+              chatLanguages.add(findByUserId(userIds).getLanguage());
+          }
+          chat.setLanguages(chatLanguages);
+          chatRepository.save(chat);
+          chatRepository.flush();
+      }
     }
     if(userPutDTO.getLearningLanguage() != null){
       user.setLearningLanguage(userPutDTO.getLearningLanguage());

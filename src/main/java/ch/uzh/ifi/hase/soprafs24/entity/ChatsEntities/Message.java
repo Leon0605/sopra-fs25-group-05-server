@@ -22,7 +22,11 @@ public class Message implements Serializable  {
     @Embedded
     private LanguageMapping languageMapping;
 
+    private String original;
+
     private LocalDateTime timestamp;
+
+    private String originalLanguage;
     
     
     public LocalDateTime getTimestamp(){
@@ -57,5 +61,11 @@ public class Message implements Serializable  {
     public Long getUserId(){
         return userId;
     }
+
+    public String getOriginal(){return original;}
+    public void setOriginal(String original){this.original=original;}
+
+    public String getOriginalLanguage(){return originalLanguage;}
+    public void setOriginalLanguage(String originalLanguage){this.originalLanguage=originalLanguage;}
     
 }
