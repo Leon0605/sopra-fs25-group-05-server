@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+
+  # run the workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
@@ -26,20 +28,29 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          API_KEY: ${{ secrets.API_KEY }}
 
   deploy:
     name: Deploying to Google Cloud
     runs-on: ubuntu-latest
-    needs: test  # 🔥 FIX: Uncommented to ensure tests pass first
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4  # 🔥 FIX: Updated from v2 to v4
+        uses: actions/checkout@v2
 
-      - name: Set up Java 17 for deployment  # 🔥 FIX: Added critical step
-        uses: actions/setup-java@v3
+      - name: Prepare app.yaml MONGODB_PASSWORD
+        run: sed -i "s/MONGO_PLACEHOLDER/${{ secrets.MONGODB_PASSWORD }}/g" app.yaml
+
+      - name: Prepare app.yaml API_KEY
+        run: sed -i "s/API_PLACEHOLDER/${{ secrets.API_KEY }}/g" app.yaml
+
+      - name: Deploy to App Engine
+        id: deploy
+        uses: google-github-actions/deploy-appengine@v0.2.0
         with:
-          distribution: "temurin"
-          java-version: "17"
+          deliverables: app.yaml
+          version: v2
+          credentials: ${{ secrets.GCP_SERVICE_CREDENTIALS }}
 
-      - name: Authenticate with Google Cloud
+      - name: Test
+        run: curl "${{ steps.deploy.outputs.url }}"
