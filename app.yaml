@@ -2,8 +2,14 @@
 # https://cloud.google.com/appengine/docs/standard
 
 runtime: java17
+env: flex
 instance_class: F2
 
 env_variables:
   SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 5MB
   SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 5MB
+
+automatic_scaling:
+  target_cpu_utilization: 0.65
+  min_num_instances: 1
+  max_num_instances: 5
