@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import ch.uzh.ifi.hase.soprafs24.constant.LanguageMapping;
@@ -18,10 +19,11 @@ public class Message implements Serializable  {
 
     private String chatId;
     private Long userId;
-
+    
+    @Lob
     @Embedded
     private LanguageMapping languageMapping;
-
+    @Lob
     private String original;
 
     private LocalDateTime timestamp;
