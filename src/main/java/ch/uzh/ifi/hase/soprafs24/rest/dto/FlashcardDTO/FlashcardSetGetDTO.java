@@ -5,6 +5,14 @@ public class FlashcardSetGetDTO {
     private int flashcardQuantity;
     private String learningLanguage;
     private String flashcardSetId;
+    private String language;
+    
+    public void setLanguage(String language){
+        this.language = language;
+    }
+    public String getLanguage(){
+        return language;
+    }
 
     public void setFlashcardSetName(String flashcardSetName){
         this.flashcardSetName = flashcardSetName;

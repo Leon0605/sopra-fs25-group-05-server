@@ -94,11 +94,13 @@ public interface DTOMapper {
   @Mapping(source = "flashcardSetName", target = "flashcardSetName")
   @Mapping(source = "learningLanguage", target = "learningLanguage")
   @Mapping(source = "flashcardSetId", target = "flashcardSetId")
+  @Mapping(source = "language", target = "language")
   FlashcardSetGetDTO convertFlashcardSetEntityToFlashcardSetGetDTO(FlashcardSet flashcardSet);
   
   @Mapping(source = "flashcardId", target = "flashcardId")
   @Mapping(source = "contentFront", target = "contentFront")
   @Mapping(source = "contentBack", target = "contentBack")
   @Mapping(source = "learningLanguage", target = "learningLanguage")
+  @Mapping(source = "language", target = "language")
   FlashcardGetDTO  convertFlashcardEntityToFlashcardGetDTO(Flashcard flashcard);
 }
