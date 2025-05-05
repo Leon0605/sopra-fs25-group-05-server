@@ -14,7 +14,6 @@ import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
 import ch.uzh.ifi.hase.soprafs24.repository.FlashcardsRepositories.FlashcardRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.FlashcardsRepositories.FlashcardSetRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
-
 import ch.uzh.ifi.hase.soprafs24.rest.dto.FlashcardDTO.IncomingNewFlashcard;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.FlashcardDTO.IncomingNewFlashcardSet;
 import ch.uzh.ifi.hase.soprafs24.service.API.AzureAPI;
@@ -33,12 +32,13 @@ public class FlashcardService {
         this.userRepository = userRepository;
         this.flashcardRepository = flashcardRepository;
     }
+    
     public void createFlashcardSet(String userToken,IncomingNewFlashcardSet incomingNewFlashcardSet){
         User user = userService.findByUserToken(userToken);
         
         FlashcardSet flashcardSet = new FlashcardSet();
 
-        flashcardSet.setFlashcardSetId(UUID.randomUUID().toString());
+        flashcardSet.setFlashcardSetId(generateId());
         flashcardSet.setUserId(user.getId());
         flashcardSet.setLearningLanguage(user.getLearningLanguage());
         flashcardSet.setLanguage(user.getLanguage());
@@ -69,7 +69,7 @@ public class FlashcardService {
         FlashcardSet flashcardSet = findByFlashcardSetId(flashcardSetId);
 
         Flashcard flashcard = new Flashcard();
-        flashcard.setFlashcardId(UUID.randomUUID().toString());
+        flashcard.setFlashcardId(generateId());
         flashcard.setFlashcardSetId(flashcardSetId);
         flashcard.setUserId(user.getId());
         flashcard.setLearningLanguage(flashcardSet.getLearningLanguage());
@@ -84,10 +84,12 @@ public class FlashcardService {
         flashcard.setContentBack(AzureAPI.AzureTranslate(incomingNewFlashcard.getContentFront(), user.getLanguage(), user.getLearningLanguage()));
         }
 
-        flashcardRepository.saveAndFlush(flashcard);
+        flashcardRepository.save(flashcard);
+        flashcardRepository.flush();
         
         flashcardSet.setFlashcardsIds(flashcard.getFlashcardId());
-        flashcardSetRepository.saveAndFlush(flashcardSet);
+        flashcardSetRepository.save(flashcardSet);
+        flashcardSetRepository.flush();
         
     }
 
@@ -125,6 +127,11 @@ public class FlashcardService {
     public void deleteFlashcardSet(String userToken, String flashcardSetId){
         User user = userService.findByUserToken(userToken);
         FlashcardSet flashcardSet = findByFlashcardSetId(flashcardSetId);
+
+        for(String flashcardId : flashcardSet.getFlashcardsIds()){
+            Flashcard flashcard = findByFlashcardId(flashcardId);
+            flashcardRepository.delete(flashcard);
+        }
         
         flashcardSetRepository.delete(flashcardSet);
 
@@ -132,5 +139,8 @@ public class FlashcardService {
 
         userRepository.save(user);
         userRepository.flush();
+    }
+    public String generateId(){
+        return UUID.randomUUID().toString();
     }
 }

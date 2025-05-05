@@ -35,7 +35,7 @@ public class FlashcardSetGetDTO {
     public String getFlashcardSetId(){
         return flashcardSetId;
     }
-    public String getLearningLanguageId() {
+    public String getLearningLanguage() {
         return learningLanguage;
     }
 }
