@@ -12,9 +12,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.ChatMessageDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.IncomingChatMessageDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.OutgoingMessageDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.UserChatDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserLoginDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.*;
 
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -89,6 +87,7 @@ public interface DTOMapper {
   @Mapping(source = "originalMessage", target = "originalMessage")
   @Mapping(source = "translatedMessage", target = "translatedMessage")
   @Mapping(source = "timestamp", target = "timestamp")
+  @Mapping(source= "status", target = "status")
   OutgoingMessageDTO convertOutgoingMessageToOutgoingMessageDTO(OutgoingMessage outgoingMessage);
     
   @Mapping(source = "flashcardSetName", target = "flashcardSetName")
@@ -103,4 +102,9 @@ public interface DTOMapper {
   @Mapping(source = "learningLanguage", target = "learningLanguage")
   @Mapping(source = "language", target = "language")
   FlashcardGetDTO  convertFlashcardEntityToFlashcardGetDTO(Flashcard flashcard);
+
+  @Mapping(source = "id", target = "id")
+  @Mapping(source = "username", target = "username")
+  @Mapping(source = "photo", target = "photo")
+  UserGetAllDTO convertEntityToUserGetAllDTO(User user);
 }

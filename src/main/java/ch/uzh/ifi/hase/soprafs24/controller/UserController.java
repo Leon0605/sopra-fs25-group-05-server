@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,11 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserChangePasswordDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserLoginDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserPostDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserPutDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.*;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 
@@ -81,22 +78,23 @@ public class UserController {
   @GetMapping("/users")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public List<UserGetDTO> getAllUsers() {
+  public List<UserGetAllDTO> getAllUsers() {
     // fetch all users in the internal representation
     List<User> users = userService.getUsers();
-    List<UserGetDTO> userGetDTOs = new ArrayList<>();
+    List<UserGetAllDTO> userGetDTOs = new ArrayList<>();
 
     // convert each user to the API representation
     for (User user : users) {
-      userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetDTO(user));
+      userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetAllDTO(user));
     }
     return userGetDTOs;
   }
   @GetMapping("/users/{userId}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public UserGetDTO getOneUser(@PathVariable String userId){
-    return DTOMapper.INSTANCE.convertEntityToUserGetDTO(userService.findByUserId(Long.parseLong(userId)));  
+  public UserGetDTO getOneUser(@PathVariable String userId, @RequestHeader("Token") String token){
+    long id = Long.parseLong(userId);
+    return DTOMapper.INSTANCE.convertEntityToUserGetDTO(userService.getSingleUser(id, token));
   }
 
   @PostMapping("/users/{userId}/change-password")
@@ -144,9 +142,10 @@ public class UserController {
   @PutMapping("/users/{receiverUserId}/friend-request")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody
-  public void handleAcceptFriendRequest(@PathVariable String receiverUserId, @RequestHeader("senderUserId") Long senderUserId, @RequestHeader("Authorization") String receiverUserToken){
-    userService.acceptFriendRequest(Long.parseLong(receiverUserId),receiverUserToken, senderUserId);
+  public void handleAcceptFriendRequest(@PathVariable String receiverUserId, @RequestHeader("senderUserId") Long senderUserId, @RequestHeader("Authorization") String receiverUserToken, @RequestHeader("Accept") boolean accept){
+    userService.handleFriendRequest(Long.parseLong(receiverUserId),receiverUserToken, senderUserId, accept);
   }
+
 
   @PostMapping("/users")
   @ResponseStatus(HttpStatus.CREATED)

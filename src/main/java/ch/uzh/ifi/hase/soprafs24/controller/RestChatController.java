@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -56,24 +57,27 @@ public class RestChatController {
     }
 
 
+    @PutMapping("/{messageId}/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
 
+    public void updateMessageStatus(@PathVariable String messageId, @PathVariable Long userId){
+        chatService.updateMessageStatus(messageId, userId);
+    }
 
-    @GetMapping("/chats/{chatId}/{token}")
+    @GetMapping("/chats/{chatId}/{userId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
 
     //needs to be changed in a way that it is dependent on the User that makes the call + Usage of OutgoingMessage(DTO)
-    public ArrayList <OutgoingMessageDTO> getMessages(@PathVariable String chatId, @PathVariable String token){
+    public ArrayList <OutgoingMessageDTO> getMessages(@PathVariable String chatId, @PathVariable Long userId){
         ArrayList<Message> messages = chatService.getAllMessageWithChatId(chatId);
-        token = token.replace("\"", "").trim();
-        User user = userRepository.findByToken(token);
-        if (user == null){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+        User user = userService.findByUserId(userId);
         String userLanguage = user.getLanguage();
         ArrayList<OutgoingMessageDTO> outgoingMessageDTOS = new ArrayList<>();
 
         for(Message message: messages){
+            chatService.updateMessageStatus(message.getChatId(), userId);
             OutgoingMessage outgoingMessage = chatService.transformMessageToOutput(message, userLanguage);
             outgoingMessageDTOS.add(DTOMapper.INSTANCE.convertOutgoingMessageToOutgoingMessageDTO(outgoingMessage));
         }

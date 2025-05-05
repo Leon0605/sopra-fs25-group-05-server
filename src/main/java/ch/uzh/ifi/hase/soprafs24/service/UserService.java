@@ -126,6 +126,32 @@ public class UserService {
   public List<User> getUsers() {
     return this.userRepository.findAll();
   }
+
+  public User getSingleUser(long userId, String token){
+        User user = findByUserId(userId);
+        User privacyUser = new User();
+      privacyUser.setPrivacy(user.getPrivacy());
+      privacyUser.setUsername(user.getUsername());
+      privacyUser.setId(user.getId());
+      privacyUser.setPhoto(user.getPhoto());
+        if (user.getToken().equals(token)) {
+            return user;
+        }
+        else if(user.getPrivacy().equals("open") || user.getFriendsList().contains(findByUserToken(token).getId())){
+            privacyUser.setStatus(user.getStatus());
+            privacyUser.setBirthday(user.getBirthday());
+            privacyUser.setLearningLanguage(user.getLearningLanguage());
+            privacyUser.setLanguage(user.getLanguage());
+            return privacyUser;
+        }
+        else if(user.getPrivacy().equals("private")){
+            return privacyUser;
+        }
+        else{
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something unexpected happened");
+        }
+
+  }
   public void performLogout(Long userId){
 
     User foundUser = findByUserId(userId);
@@ -173,6 +199,10 @@ public class UserService {
     if(receiver.getReceivedFriendRequestsList().contains(sender.getId()) && sender.getSentFriendRequestsList().contains(receiverUserId)){
       throw new ResponseStatusException(HttpStatus.CONFLICT, "You have already sent a friend request to this person!");
     }
+    if(sender.getReceivedFriendRequestsList().contains(receiverUserId)){
+        handleFriendRequest(sender.getId(), senderUserToken, receiverUserId, true);
+        return;
+    }
     if(receiver.getFriendsList().contains(sender.getId()) && sender.getFriendsList().contains(receiver.getId())){
       throw new ResponseStatusException(HttpStatus.CONFLICT,"Users are already friends");
     }
@@ -185,33 +215,35 @@ public class UserService {
     userRepository.flush();
   }
 
-  public void acceptFriendRequest(Long receiverUserId, String reiceiverUserToken, Long senderUserId){
+  public void handleFriendRequest(Long receiverUserId, String receiverUserToken, Long senderUserId, boolean accept){
     User receiver = findByUserId(receiverUserId);
     User sender = findByUserId(senderUserId);
 
-    if(!receiver.getToken().equals(reiceiverUserToken)){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"The provied Token for the friend request receiver is not vaild!");
+    if(!receiver.getToken().equals(receiverUserToken)){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"The provided Token for the friend request receiver is not vaild!");
     }
     if(receiver.getFriendsList().contains(sender.getId()) && sender.getFriendsList().contains(receiver.getId())){
       throw new ResponseStatusException(HttpStatus.CONFLICT,"Users are already friends");
     }
     sender.getSentFriendRequestsList().remove(receiverUserId);
-    sender.getReceivedFriendRequestsList().remove(receiverUserId);
     receiver.getReceivedFriendRequestsList().remove(senderUserId);
-    receiver.getSentFriendRequestsList().remove(senderUserId);
 
-    sender.setFriend(receiverUserId);
-    receiver.setFriend(senderUserId);
+    if(accept) {
+        sender.setFriend(receiverUserId);
+        receiver.setFriend(senderUserId);
 
-    ArrayList<User> users = new ArrayList<>();
-    users.add(sender);
-    users.add(receiver);
-    chatService.createChat(users);
+        ArrayList<User> users = new ArrayList<>();
+        users.add(sender);
+        users.add(receiver);
+        chatService.createChat(users);
+    }
     userRepository.save(sender);
     userRepository.save(receiver);
     userRepository.flush();
     
   }
+
+
   public User findByUserToken(String token){
 
     User user = userRepository.findByToken(token);

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.UUID;
 
+import ch.uzh.ifi.hase.soprafs24.constant.ReadByUsers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -87,6 +88,7 @@ public class ChatService {
         message.setOriginal(originalMessage);
         message.setChatId(incomingMessage.getChatId());
         message.setUserId(senderID);
+        message.setStatus("sent");
 
         String senderLanguage = userService.findByUserId(senderID).getLanguage();
         languageMap.setContent(senderLanguage, originalMessage);
@@ -109,6 +111,25 @@ public class ChatService {
         chatRepository.flush();
     }
 
+    public void updateMessageStatus(String messageId, Long userId){
+        Message message = messageRepository.findByMessageId(messageId);
+        if(message == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Message not found");
+        }
+        Chat chat = chatRepository.findByChatId(message.getChatId());
+        ReadByUsers readByUsers =  message.getReadByUser();
+        if(readByUsers.getReadByUsers().contains(userId)){
+            return;
+        }else {
+            readByUsers.addReadByUser(userId);
+        }
+
+        if (readByUsers.getReadByUsers().containsAll(chat.getUserIds())){
+            message.setStatus("read");
+        }
+
+    }
+
     public OutgoingMessage transformMessageToOutput(Message message, String Language){
         long SenderId = message.getUserId();
         User sender = userService.findByUserId(SenderId);
@@ -119,6 +140,7 @@ public class ChatService {
         outgoingMessage.setUserId(SenderId);
         outgoingMessage.setOriginalMessage(message.getOriginal());
         outgoingMessage.setTranslatedMessage(message.getLanguageMapping().getContent(Language));
+        outgoingMessage.setStatus(message.getStatus());
         return outgoingMessage;
     }
 
