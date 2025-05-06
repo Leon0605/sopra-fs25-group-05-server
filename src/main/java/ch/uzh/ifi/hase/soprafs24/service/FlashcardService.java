@@ -32,14 +32,16 @@ public class FlashcardService {
         this.userRepository = userRepository;
         this.flashcardRepository = flashcardRepository;
     }
+    
     public void createFlashcardSet(String userToken,IncomingNewFlashcardSet incomingNewFlashcardSet){
         User user = userService.findByUserToken(userToken);
         
         FlashcardSet flashcardSet = new FlashcardSet();
 
-        flashcardSet.setFlashcardSetId(UUID.randomUUID().toString());
+        flashcardSet.setFlashcardSetId(generateId());
         flashcardSet.setUserId(user.getId());
         flashcardSet.setLearningLanguage(user.getLearningLanguage());
+        flashcardSet.setLanguage(user.getLanguage());
         flashcardSet.setFlashcardSetName(incomingNewFlashcardSet.getFlashcardSetName());
         flashcardSetRepository.save(flashcardSet);
         flashcardSetRepository.flush();
@@ -67,16 +69,78 @@ public class FlashcardService {
         FlashcardSet flashcardSet = findByFlashcardSetId(flashcardSetId);
 
         Flashcard flashcard = new Flashcard();
-        flashcard.setFlashcardId(UUID.randomUUID().toString());
+        flashcard.setFlashcardId(generateId());
         flashcard.setFlashcardSetId(flashcardSetId);
         flashcard.setUserId(user.getId());
-        flashcard.setLearningLanguage(user.getLearningLanguage());
+        flashcard.setLearningLanguage(flashcardSet.getLearningLanguage());
+        flashcard.setLanguage(flashcardSet.getLanguage());
         flashcard.setContentFront(incomingNewFlashcard.getContentFront());
-        flashcard.setContentBack(AzureAPI.AzureTranslate(incomingNewFlashcard.getContentFront(), user.getLanguage(), user.getLearningLanguage()));
-        flashcardRepository.saveAndFlush(flashcard);
 
-        flashcardSet.setFlashcardsIds(flashcard.getFlashcardId());
-        flashcardSetRepository.saveAndFlush(flashcardSet);
+        if(incomingNewFlashcard.getContentBack() != null){
+            flashcard.setContentBack(incomingNewFlashcard.getContentBack());
+            flashcard.setContentFront(incomingNewFlashcard.getContentFront());
+        }
+        else{
+        flashcard.setContentBack(AzureAPI.AzureTranslate(incomingNewFlashcard.getContentFront(), user.getLanguage(), user.getLearningLanguage()));
+        }
+
+        flashcardRepository.save(flashcard);
+        flashcardRepository.flush();
         
+        flashcardSet.setFlashcardsIds(flashcard.getFlashcardId());
+        flashcardSetRepository.save(flashcardSet);
+        flashcardSetRepository.flush();
+        
+    }
+
+    public void updateFlashcard(String userToken,String FlashcardSetId, String FlashcardId,IncomingNewFlashcard incomingNewFlashcard){
+        User user = userService.findByUserToken(userToken);
+        FlashcardSet flashcardSet = findByFlashcardSetId(FlashcardSetId);
+        Flashcard flashcard = findByFlashcardId(FlashcardId);
+
+        if(incomingNewFlashcard.getContentBack() != null){
+            flashcard.setContentBack(incomingNewFlashcard.getContentBack());
+            flashcard.setContentFront(incomingNewFlashcard.getContentFront());
+        }
+        else{
+            flashcard.setContentFront(incomingNewFlashcard.getContentFront());
+            String contentBack = AzureAPI.AzureTranslate(incomingNewFlashcard.getContentFront(), flashcard.getLanguage() , flashcard.getLearningLanguage());
+            flashcard.setContentBack(contentBack);
+        }
+        flashcardRepository.save(flashcard);
+        flashcardRepository.flush();
+
+    }
+    public void deleteFlashcard(String userToken,String flashcardSetId,String flashcardId){
+        User user = userService.findByUserToken(userToken);
+        FlashcardSet flashcardSet = findByFlashcardSetId(flashcardSetId);
+        Flashcard flashcard = findByFlashcardId(flashcardId);
+
+        flashcardRepository.delete(flashcard);
+
+        flashcardSet.getFlashcardsIds().remove(flashcard.getFlashcardId());
+
+        flashcardSetRepository.save(flashcardSet);
+        flashcardSetRepository.flush();
+    }
+    
+    public void deleteFlashcardSet(String userToken, String flashcardSetId){
+        User user = userService.findByUserToken(userToken);
+        FlashcardSet flashcardSet = findByFlashcardSetId(flashcardSetId);
+
+        for(String flashcardId : flashcardSet.getFlashcardsIds()){
+            Flashcard flashcard = findByFlashcardId(flashcardId);
+            flashcardRepository.delete(flashcard);
+        }
+        
+        flashcardSetRepository.delete(flashcardSet);
+
+        user.getFlashcardSetsIds().remove(flashcardSetId);
+
+        userRepository.save(user);
+        userRepository.flush();
+    }
+    public String generateId(){
+        return UUID.randomUUID().toString();
     }
 }

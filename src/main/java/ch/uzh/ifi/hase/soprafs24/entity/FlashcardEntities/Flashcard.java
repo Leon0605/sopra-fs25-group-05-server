@@ -15,7 +15,13 @@ public class Flashcard {
     private String contentFront;
     private String contentBack;
     private String flashcardSetId;
-
+    private String language;
+    public void setLanguage(String language){
+        this.language = language;
+    }
+    public String getLanguage(){
+        return language;
+    }
     public String getFlashcardId(){
         return flashcardId;
     }

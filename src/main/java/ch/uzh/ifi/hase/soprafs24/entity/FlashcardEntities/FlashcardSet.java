@@ -16,6 +16,7 @@ public class FlashcardSet {
     private String learningLanguage;
     private Long userId;
     private String flashcardSetName;
+    private String language;
 
     public void setFlashcardSetName(String flashcardSetName){
         this.flashcardSetName = flashcardSetName;
@@ -38,7 +39,9 @@ public class FlashcardSet {
     public void setUserId(Long userId){
         this.userId = userId;
     }
-
+    public void setLanguage(String language){
+        this.language = language;
+    }
     public String getFlashcardSetId(){
         return flashcardSetId;
     }
@@ -54,6 +57,10 @@ public class FlashcardSet {
 
     public Long getUserId() {
         return userId;
+    }
+    
+    public String getLanguage(){
+        return language;
     }
     
 }
