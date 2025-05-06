@@ -150,6 +150,7 @@ public class ChatServiceTest {
         assertEquals(testMessage.getMessageId(), actualMessage.getMessageId());
         assertEquals(testMessage.getChatId(), actualMessage.getChatId());
         assertEquals(testMessage.getLanguageMapping(), actualMessage.getLanguageMapping());
+        assertNotNull(actualMessage.getTimestamp());
     }
 
     /*@Test
@@ -164,6 +165,7 @@ public class ChatServiceTest {
 
     @Test
     public void transformMessageToOutput_Success(){
+        testMessage.setOriginal("Hello");
         OutgoingMessage expectedOutgoingMessage = new OutgoingMessage();
         testMessage.setTimestamp(LocalDateTime.now(ZoneId.of("Europe/Zurich")));
         expectedOutgoingMessage.setChatId(testChat.getChatId());

@@ -3,9 +3,16 @@ package ch.uzh.ifi.hase.soprafs24.rest.dto.FlashcardDTO;
 public class FlashcardGetDTO {
     private String flashcardId;
     private String learningLanguage;
+    private String language;
     private String contentFront;
     private String contentBack;
 
+    public void setLanguage(String language){
+        this.language = language;
+    }
+    public String getLanguage(){
+        return language;
+    }
     public String getFlashcardId(){
         return flashcardId;
     }

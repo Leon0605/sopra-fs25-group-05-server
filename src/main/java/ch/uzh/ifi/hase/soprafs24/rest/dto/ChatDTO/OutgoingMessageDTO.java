@@ -7,6 +7,7 @@ public class OutgoingMessageDTO {
     private String timestamp;
     private String originalMessage;
     private String translatedMessage;
+    private String status;
 
     public void setMessageId(String messageId) {this.messageId = messageId;}
     public void setChatId(String chatId) {this.chatId = chatId;}
@@ -14,7 +15,8 @@ public class OutgoingMessageDTO {
     public void setTimestamp(String timestamp){this.timestamp = timestamp;}
     public void setOriginalMessage(String originalMessage) {this.originalMessage = originalMessage;}
     public void setTranslatedMessage(String translatedMessage) {this.translatedMessage = translatedMessage;}
-    
+    public void setStatus(String status) {this.status = status;}
+
     public String getTimestamp(){
         return timestamp;
     }
@@ -33,4 +35,5 @@ public class OutgoingMessageDTO {
     public String getTranslatedMessage() {
         return translatedMessage;
     }
+    public String getStatus() {return status;}
 }

@@ -1,20 +1,31 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserChangePasswordDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserPutDTO;
+import java.io.IOException;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Chat;
 import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.Optional;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserChangePasswordDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserPutDTO;
 
 public class UserServiceTest {
 
@@ -24,6 +35,9 @@ public class UserServiceTest {
   @InjectMocks
   @Spy
   private UserService userService;
+
+  @Mock
+  private ChatService chatService;
 
   private User testUser;
 
@@ -241,4 +255,161 @@ public class UserServiceTest {
       assertEquals(404, response.getStatus().value());
   }
 
+  @Test 
+  public void updateUserPhotoValidInput(){
+
+    byte[] imageBytes = "UserPhoto".getBytes();
+    MockMultipartFile photo = new MockMultipartFile("userPhoto", imageBytes);
+
+    testUser.setPhoto(null);
+
+    Mockito.doReturn(testUser).when(userService).findByUserId(Mockito.anyLong());
+
+    userService.updateUserProfilePictureWithUserId(testUser.getId(), photo);
+    
+    assertNotNull(testUser.getPhoto());
+    assertTrue(testUser.getPhoto().startsWith("data:image/png;base64,"));
+
+  }
+  @Test
+  public void updateUserPhotoInvalidInput() throws Exception{
+    MultipartFile photo = Mockito.mock(MultipartFile.class);
+    Mockito.doThrow(new IOException("invalid photo format")).when(photo).getBytes();
+
+    Mockito.doReturn(testUser).when(userService).findByUserId(Mockito.anyLong());
+
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.updateUserProfilePictureWithUserId(testUser.getId(), photo));
+
+    assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+  }
+  @Test
+  public void createFriendRequestValidInput(){
+    User testUser2 = new User();
+    testUser2.setId(2L);
+    testUser2.setPassword("Password2");
+    testUser2.setUsername("testUsername2");
+    testUser2.setToken("TestToken2");
+
+    Mockito.doReturn(testUser).when(userService).findByUserId(Mockito.anyLong());
+    Mockito.doReturn(testUser2).when(userService).findByUserToken(Mockito.anyString());
+
+    userService.createFriendRequest(testUser.getId(), testUser2.getToken());
+
+    assertEquals(testUser.getReceivedFriendRequestsList().get(0),2);
+    assertEquals(testUser2.getSentFriendRequestsList().get(0),1);
+
+  }
+
+  @Test
+  public void createFriendRequestInvalidInputAlreadySent(){
+    User testUser2 = new User();
+    testUser2.setId(2L);
+    testUser2.setPassword("Password2");
+    testUser2.setUsername("testUsername2");
+    testUser2.setToken("TestToken2");
+
+    testUser.setReceivedFriendRequest(2L);
+    testUser2.setSentFriendRequest(1L);
+
+    Mockito.doReturn(testUser).when(userService).findByUserId(Mockito.anyLong());
+    Mockito.doReturn(testUser2).when(userService).findByUserToken(Mockito.anyString());
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.createFriendRequest(testUser.getId(), testUser2.getToken()));
+
+    assertEquals(HttpStatus.CONFLICT, exception.getStatus());
+  }
+  @Test
+  public void createFriendRequestInvalidInputUsersAlreadyFriends(){
+    User testUser2 = new User();
+    testUser2.setId(2L);
+    testUser2.setPassword("Password2");
+    testUser2.setUsername("testUsername2");
+    testUser2.setToken("TestToken2");
+
+    testUser.setFriend(2L);
+    testUser2.setFriend(1L);
+
+    testUser.setToken("TestToken");
+
+    Mockito.doReturn(testUser).when(userService).findByUserId(Mockito.anyLong());
+    Mockito.doReturn(testUser2).when(userService).findByUserToken(Mockito.anyString());
+
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.createFriendRequest(testUser.getId(), testUser2.getToken()));
+
+    assertEquals(HttpStatus.CONFLICT, exception.getStatus());
+    }
+
+  @Test
+  public void acceptFriendRequestValidInput(){
+
+    User testUser2 = new User();
+    testUser2.setId(2L);
+    testUser2.setPassword("Password2");
+    testUser2.setUsername("testUsername2");
+    testUser2.setToken("TestToken2");
+
+    testUser.setReceivedFriendRequest(2L);
+    testUser2.setSentFriendRequest(1L);
+
+    testUser.setToken("TestToken");
+
+    Chat chat = new Chat();
+    Mockito.doReturn(chat).when(chatService).createChat(Mockito.any());
+
+    Mockito.doAnswer(invocation -> {
+        Long id = invocation.getArgument(0); 
+        return id.equals(1L) ? testUser : testUser2;
+    }).when(userService).findByUserId(Mockito.anyLong());
+
+
+    userService.acceptFriendRequest(testUser.getId(), testUser.getToken(), testUser2.getId());
+
+    assertTrue(testUser.getReceivedFriendRequestsList().isEmpty());
+    assertTrue(testUser2.getSentFriendRequestsList().isEmpty());
+    assertEquals(testUser.getFriendsList().get(0),2L);
+    assertEquals(testUser2.getFriendsList().get(0),1L);
+  }
+
+  @Test
+  public void acceptFriendRequestInvalidInputNotMatchingToken(){
+    User testUser2 = new User();
+    testUser2.setId(2L);
+    testUser2.setPassword("Password2");
+    testUser2.setUsername("testUsername2");
+    testUser2.setToken("TestToken2");
+
+    testUser.setReceivedFriendRequest(2L);
+    testUser2.setSentFriendRequest(1L);
+
+    testUser.setToken("TestToken");
+
+    Mockito.doAnswer(invocation -> {
+        Long id = invocation.getArgument(0); 
+        return id.equals(1L) ? testUser : testUser2;
+    }).when(userService).findByUserId(Mockito.anyLong());
+
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.acceptFriendRequest(testUser.getId(), "wrongToken", testUser2.getId()));
+
+    assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatus());
+  }
+  @Test
+  public void acceptFriendRequestInvalidInputUsersAlreadyFriends(){
+    User testUser2 = new User();
+    testUser2.setId(2L);
+    testUser2.setPassword("Password2");
+    testUser2.setUsername("testUsername2");
+    testUser2.setToken("TestToken2");
+
+    testUser.setFriend(2L);
+    testUser2.setFriend(1L);
+
+    testUser.setToken("TestToken");
+
+    Mockito.doAnswer(invocation -> {
+        Long id = invocation.getArgument(0); 
+        return id.equals(1L) ? testUser : testUser2;
+    }).when(userService).findByUserId(Mockito.anyLong());
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.acceptFriendRequest(testUser.getId(), testUser.getToken(), testUser2.getId()));
+
+    assertEquals(HttpStatus.CONFLICT, exception.getStatus());
+    }
 }

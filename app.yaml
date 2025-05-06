@@ -1,9 +1,19 @@
 # https://cloud.google.com/appengine/docs/the-appengine-environments#comparing_high-level_features
 # https://cloud.google.com/appengine/docs/standard
 
-runtime: java17
+runtime: java
+env: flex
+
+handlers:
+  - url: /.*
+    script: auto
+
 instance_class: F2
 
-env_variables:
-  SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 5MB
-  SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 5MB
+automatic_scaling:
+  max_num_instances: 1
+
+runtime_config:
+  operating_system: "ubuntu22"
+  runtime_version: "17"
+

@@ -6,8 +6,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Entity
-@Table(name = "INCOMINGMESSAGE")
 public class IncomingMessage implements Serializable {
     private String chatId;
 

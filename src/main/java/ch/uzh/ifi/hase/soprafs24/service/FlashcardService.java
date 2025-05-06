@@ -14,6 +14,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
 import ch.uzh.ifi.hase.soprafs24.repository.FlashcardsRepositories.FlashcardRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.FlashcardsRepositories.FlashcardSetRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
+
 import ch.uzh.ifi.hase.soprafs24.rest.dto.FlashcardDTO.IncomingNewFlashcard;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.FlashcardDTO.IncomingNewFlashcardSet;
 import ch.uzh.ifi.hase.soprafs24.service.API.AzureAPI;
@@ -40,6 +41,7 @@ public class FlashcardService {
         flashcardSet.setFlashcardSetId(UUID.randomUUID().toString());
         flashcardSet.setUserId(user.getId());
         flashcardSet.setLearningLanguage(user.getLearningLanguage());
+        flashcardSet.setLanguage(user.getLanguage());
         flashcardSet.setFlashcardSetName(incomingNewFlashcardSet.getFlashcardSetName());
         flashcardSetRepository.save(flashcardSet);
         flashcardSetRepository.flush();
@@ -70,13 +72,65 @@ public class FlashcardService {
         flashcard.setFlashcardId(UUID.randomUUID().toString());
         flashcard.setFlashcardSetId(flashcardSetId);
         flashcard.setUserId(user.getId());
-        flashcard.setLearningLanguage(user.getLearningLanguage());
+        flashcard.setLearningLanguage(flashcardSet.getLearningLanguage());
+        flashcard.setLanguage(flashcardSet.getLanguage());
         flashcard.setContentFront(incomingNewFlashcard.getContentFront());
-        flashcard.setContentBack(AzureAPI.AzureTranslate(incomingNewFlashcard.getContentFront(), user.getLanguage(), user.getLearningLanguage()));
-        flashcardRepository.saveAndFlush(flashcard);
 
+        if(incomingNewFlashcard.getContentBack() != null){
+            flashcard.setContentBack(incomingNewFlashcard.getContentBack());
+            flashcard.setContentFront(incomingNewFlashcard.getContentFront());
+        }
+        else{
+        flashcard.setContentBack(AzureAPI.AzureTranslate(incomingNewFlashcard.getContentFront(), user.getLanguage(), user.getLearningLanguage()));
+        }
+
+        flashcardRepository.saveAndFlush(flashcard);
+        
         flashcardSet.setFlashcardsIds(flashcard.getFlashcardId());
         flashcardSetRepository.saveAndFlush(flashcardSet);
         
+    }
+
+    public void updateFlashcard(String userToken,String FlashcardSetId, String FlashcardId,IncomingNewFlashcard incomingNewFlashcard){
+        User user = userService.findByUserToken(userToken);
+        FlashcardSet flashcardSet = findByFlashcardSetId(FlashcardSetId);
+        Flashcard flashcard = findByFlashcardId(FlashcardId);
+
+        if(incomingNewFlashcard.getContentBack() != null){
+            flashcard.setContentBack(incomingNewFlashcard.getContentBack());
+            flashcard.setContentFront(incomingNewFlashcard.getContentFront());
+        }
+        else{
+            flashcard.setContentFront(incomingNewFlashcard.getContentFront());
+            String contentBack = AzureAPI.AzureTranslate(incomingNewFlashcard.getContentFront(), flashcard.getLanguage() , flashcard.getLearningLanguage());
+            flashcard.setContentBack(contentBack);
+        }
+        flashcardRepository.save(flashcard);
+        flashcardRepository.flush();
+
+    }
+    public void deleteFlashcard(String userToken,String flashcardSetId,String flashcardId){
+        User user = userService.findByUserToken(userToken);
+        FlashcardSet flashcardSet = findByFlashcardSetId(flashcardSetId);
+        Flashcard flashcard = findByFlashcardId(flashcardId);
+
+        flashcardRepository.delete(flashcard);
+
+        flashcardSet.getFlashcardsIds().remove(flashcard.getFlashcardId());
+
+        flashcardSetRepository.save(flashcardSet);
+        flashcardSetRepository.flush();
+    }
+    
+    public void deleteFlashcardSet(String userToken, String flashcardSetId){
+        User user = userService.findByUserToken(userToken);
+        FlashcardSet flashcardSet = findByFlashcardSetId(flashcardSetId);
+        
+        flashcardSetRepository.delete(flashcardSet);
+
+        user.getFlashcardSetsIds().remove(flashcardSetId);
+
+        userRepository.save(user);
+        userRepository.flush();
     }
 }

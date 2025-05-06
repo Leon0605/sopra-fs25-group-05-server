@@ -27,14 +27,12 @@ public class WebSocketChatController {
     private final UserService userService;
     private final ChatRepository chatRepository;
     private final SimpMessagingTemplate messageTemplate;
-    private final UserRepository userRepository;
 
     WebSocketChatController(ChatService chatService, UserService userService, ChatRepository chatRepository, SimpMessagingTemplate messageTemplate, UserRepository userRepository) {
         this.chatService = chatService;
         this.userService = userService;
         this.chatRepository = chatRepository;
         this.messageTemplate = messageTemplate;
-        this.userRepository = userRepository;
     }
 
     @MessageMapping("/MessageHandler")

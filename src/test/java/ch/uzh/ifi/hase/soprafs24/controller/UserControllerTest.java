@@ -3,14 +3,11 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-
-import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import org.junit.jupiter.api.Test;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -112,6 +109,26 @@ public class UserControllerTest {
         mockMvc.perform(getRequest).andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].id", is(testFriend.getId().intValue())));
+  }
+  @Test
+  public void getFriendRequestListWithUserId() throws Exception {
+      User testReceiver = new User();
+      testReceiver.setId(1L);
+
+      User testSender = new User();
+      testSender.setId(2L);
+
+      testReceiver.setReceivedFriendRequest(testSender.getId());
+      testSender.setSentFriendRequest(testReceiver.getId());
+
+      given(userService.findByUserId(testReceiver.getId())).willReturn(testReceiver);
+      given(userService.findByUserId(testSender.getId())).willReturn(testSender);
+
+      MockHttpServletRequestBuilder getRequest = get("/users/"+testReceiver.getId()+"/friend-request").contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(getRequest).andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(testSender.getId().intValue())));
   }
   /*@Test
   public void createUser_validInput_userCreated() throws Exception {

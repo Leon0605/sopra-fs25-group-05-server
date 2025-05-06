@@ -1,12 +1,13 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Chat;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Message;
+import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.ChatRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.MessageRepository;
+import ch.uzh.ifi.hase.soprafs24.service.API.AzureAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,12 +42,16 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final ChatService chatService;
+    private final ChatRepository chatRepository;
+    private final MessageRepository messageRepository;
 
-  @Autowired
-  public UserService(@Qualifier("userRepository") UserRepository userRepository,@Lazy ChatService chatService) {
+    @Autowired
+  public UserService(@Qualifier("userRepository") UserRepository userRepository, @Lazy ChatService chatService, ChatRepository chatRepository, MessageRepository messageRepository) {
     this.userRepository = userRepository;
     this.chatService = chatService;
-  }
+        this.chatRepository = chatRepository;
+        this.messageRepository = messageRepository;
+    }
 
   public void changeUserPassword(Long userId, String token, UserChangePasswordDTO userChangePasswordDTO){
     User user = findByUserId(userId);
@@ -80,7 +85,27 @@ public class UserService {
   public void updateUserWithUserId(Long userId, UserPutDTO userPutDTO){
     User user = findByUserId(userId);
     if(userPutDTO.getLanguage() != null){
-      user.setLanguage(userPutDTO.getLanguage());
+      String language = userPutDTO.getLanguage();
+      user.setLanguage(language);
+      for(String chatId: user.getChats()){
+          Chat chat = chatRepository.findByChatId(chatId);
+          for(String messageId: chat.getMessagesId()){
+              Message message = messageRepository.findByMessageId(messageId);
+              if(message.getLanguageMapping().getContent(language) == null){
+                  String translation = AzureAPI.AzureTranslate(message.getOriginal(), message.getOriginalLanguage(), language);
+                  message.getLanguageMapping().setContent(language, translation);
+                  messageRepository.save(message);
+                  messageRepository.flush();
+              }
+          }
+          HashSet<String> chatLanguages = new HashSet<>();
+          for(Long userIds: chat.getUserIds()){
+              chatLanguages.add(findByUserId(userIds).getLanguage());
+          }
+          chat.setLanguages(chatLanguages);
+          chatRepository.save(chat);
+          chatRepository.flush();
+      }
     }
     if(userPutDTO.getLearningLanguage() != null){
       user.setLearningLanguage(userPutDTO.getLearningLanguage());
@@ -101,6 +126,32 @@ public class UserService {
   public List<User> getUsers() {
     return this.userRepository.findAll();
   }
+
+  public User getSingleUser(long userId, String token){
+        User user = findByUserId(userId);
+        User privacyUser = new User();
+      privacyUser.setPrivacy(user.getPrivacy());
+      privacyUser.setUsername(user.getUsername());
+      privacyUser.setId(user.getId());
+      privacyUser.setPhoto(user.getPhoto());
+        if (user.getToken().equals(token)) {
+            return user;
+        }
+        else if(user.getPrivacy().equals("open") || user.getFriendsList().contains(findByUserToken(token).getId())){
+            privacyUser.setStatus(user.getStatus());
+            privacyUser.setBirthday(user.getBirthday());
+            privacyUser.setLearningLanguage(user.getLearningLanguage());
+            privacyUser.setLanguage(user.getLanguage());
+            return privacyUser;
+        }
+        else if(user.getPrivacy().equals("private")){
+            return privacyUser;
+        }
+        else{
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something unexpected happened");
+        }
+
+  }
   public void performLogout(Long userId){
 
     User foundUser = findByUserId(userId);
@@ -110,6 +161,7 @@ public class UserService {
     //User convertedUser = foundUser;
     foundUser.setStatus(UserStatus.OFFLINE);
     userRepository.save(foundUser);
+    userRepository.flush();
   }
 
   public User verifyLogin(User user){
@@ -143,11 +195,16 @@ public class UserService {
   public void createFriendRequest(Long receiverUserId, String senderUserToken){
     User sender = findByUserToken(senderUserToken);
     User receiver = findByUserId(receiverUserId);
-    if(!sender.getToken().equals(senderUserToken)){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"The provied Token for the friend request sender is not vaild!");
-    }
+    
     if(receiver.getReceivedFriendRequestsList().contains(sender.getId()) && sender.getSentFriendRequestsList().contains(receiverUserId)){
       throw new ResponseStatusException(HttpStatus.CONFLICT, "You have already sent a friend request to this person!");
+    }
+    if(sender.getReceivedFriendRequestsList().contains(receiverUserId)){
+        handleFriendRequest(sender.getId(), senderUserToken, receiverUserId, true);
+        return;
+    }
+    if(receiver.getFriendsList().contains(sender.getId()) && sender.getFriendsList().contains(receiver.getId())){
+      throw new ResponseStatusException(HttpStatus.CONFLICT,"Users are already friends");
     }
 
     sender.setSentFriendRequest(receiverUserId);
@@ -158,32 +215,35 @@ public class UserService {
     userRepository.flush();
   }
 
-  public void acceptFriendRequest(Long receiverUserId, String reiceiverUserToken, Long senderUserId){
+  public void handleFriendRequest(Long receiverUserId, String receiverUserToken, Long senderUserId, boolean accept){
     User receiver = findByUserId(receiverUserId);
     User sender = findByUserId(senderUserId);
 
-    if(!receiver.getToken().equals(reiceiverUserToken)){
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"The provied Token for the friend request receiver is not vaild!");
+    if(!receiver.getToken().equals(receiverUserToken)){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"The provided Token for the friend request receiver is not vaild!");
     }
-
+    if(receiver.getFriendsList().contains(sender.getId()) && sender.getFriendsList().contains(receiver.getId())){
+      throw new ResponseStatusException(HttpStatus.CONFLICT,"Users are already friends");
+    }
     sender.getSentFriendRequestsList().remove(receiverUserId);
-    sender.getReceivedFriendRequestsList().remove(receiverUserId);
     receiver.getReceivedFriendRequestsList().remove(senderUserId);
-    receiver.getSentFriendRequestsList().remove(senderUserId);
 
-    sender.setFriend(receiverUserId);
-    receiver.setFriend(senderUserId);
+    if(accept) {
+        sender.setFriend(receiverUserId);
+        receiver.setFriend(senderUserId);
 
-    ArrayList<User> users = new ArrayList<>();
-    users.add(sender);
-    users.add(receiver);
-    chatService.createChat(users);
-
+        ArrayList<User> users = new ArrayList<>();
+        users.add(sender);
+        users.add(receiver);
+        chatService.createChat(users);
+    }
     userRepository.save(sender);
     userRepository.save(receiver);
     userRepository.flush();
     
   }
+
+
   public User findByUserToken(String token){
 
     User user = userRepository.findByToken(token);

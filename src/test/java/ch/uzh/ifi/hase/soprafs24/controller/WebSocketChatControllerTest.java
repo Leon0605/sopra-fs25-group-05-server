@@ -39,6 +39,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -107,6 +109,7 @@ public class WebSocketChatControllerTest {
        testMessage.setUserId(userId);
        testMessage.setMessageId(UUID.randomUUID().toString());
        testMessage.setLanguageMapping(languageMapping);
+       testMessage.setTimestamp(LocalDateTime.now());
 
        OutgoingMessage outgoingMessage = new OutgoingMessage();
        outgoingMessage.setChatId(chatId);
@@ -114,6 +117,7 @@ public class WebSocketChatControllerTest {
        outgoingMessage.setMessageId(testMessage.getMessageId());
        outgoingMessage.setOriginalMessage("Hello WebSocket");
        outgoingMessage.setTranslatedMessage("Hello WebSocket");
+       outgoingMessage.setTimestamp(testMessage.getTimestamp().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
        //Expected Message handed back to Subscription endpoint after logic was applied by Controller
        OutgoingMessageDTO expectedOutgoingMessageDTO = new OutgoingMessageDTO();
@@ -152,6 +156,7 @@ public class WebSocketChatControllerTest {
        assertEquals(expectedOutgoingMessageDTO.getMessageId(), outgoingMessageDTO.getMessageId());
        assertEquals(expectedOutgoingMessageDTO.getOriginalMessage(), outgoingMessageDTO.getOriginalMessage());
        assertEquals(expectedOutgoingMessageDTO.getTranslatedMessage(), outgoingMessageDTO.getTranslatedMessage());
+       assertNotNull(outgoingMessageDTO.getTimestamp());
    }
 
     private List<Transport> createTransportClient(){
