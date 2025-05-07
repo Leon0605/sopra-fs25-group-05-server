@@ -177,7 +177,7 @@ public class UserServiceIntegrationTest {
     User updatedUser2 = userService.findByUserId(createdUser2.getId());
 
     assertTrue(chatRepository.findAll().isEmpty());
-    userService.acceptFriendRequest(updatedUser2.getId(), updatedUser2.getToken(), updatedUser.getId());
+    userService.handleFriendRequest(updatedUser2.getId(), updatedUser2.getToken(), updatedUser.getId(), true);
 
     updatedUser = userService.findByUserId(createdUser.getId());
     updatedUser2 = userService.findByUserId(createdUser2.getId());
@@ -204,7 +204,7 @@ public class UserServiceIntegrationTest {
     User updatedUser = userService.findByUserId(createdUser.getId());
     User updatedUser2 = userService.findByUserId(createdUser2.getId());
 
-    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.acceptFriendRequest(updatedUser2.getId(), "WrongToken", updatedUser.getId()));
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.handleFriendRequest(updatedUser2.getId(), "WrongToken", updatedUser.getId(), true));
 
     assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatus());
   }
@@ -229,7 +229,7 @@ public class UserServiceIntegrationTest {
     User updatedUser = userService.findByUserId(createdUser.getId());
     User updatedUser2 = userService.findByUserId(createdUser2.getId());
 
-    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.acceptFriendRequest(updatedUser2.getId(), updatedUser2.getToken(), updatedUser.getId()));
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.handleFriendRequest(updatedUser2.getId(), updatedUser2.getToken(), updatedUser.getId(), true));
 
     assertEquals(HttpStatus.CONFLICT, exception.getStatus());
   }
