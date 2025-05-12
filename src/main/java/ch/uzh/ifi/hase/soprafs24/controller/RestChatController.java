@@ -79,6 +79,7 @@ public class RestChatController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The decision has to be either add or remove");
         }
     }
+    //commit comment
     @GetMapping("/chats/{chatId}/{userId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
