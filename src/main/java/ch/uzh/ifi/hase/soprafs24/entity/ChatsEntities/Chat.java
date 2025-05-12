@@ -4,8 +4,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 @Entity
@@ -14,7 +16,11 @@ public class Chat implements Serializable {
     @Id
     private String chatId;
     //private Long userId;
+
+    @Lob
+    @Column(name="message_ids", columnDefinition="BLOB")
     private ArrayList<String> messagesId = new ArrayList<>();
+    
     private HashSet<String> languages = new HashSet<>();
 
     public void setChatId(String chatId){
@@ -24,13 +30,6 @@ public class Chat implements Serializable {
         return chatId;
     }
 
-    /*public void setUserId(long userId){
-        this.userId = userId;
-    }
-    public long getUserId(){
-        return userId;
-    }
-    */
     public void setMessagesId(String messageId){
         this.messagesId.add(messageId);
     }   

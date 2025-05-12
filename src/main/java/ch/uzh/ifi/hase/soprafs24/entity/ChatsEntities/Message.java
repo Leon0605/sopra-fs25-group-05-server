@@ -30,6 +30,7 @@ public class Message implements Serializable  {
     @Lob
     @Embedded
     private LanguageMapping languageMapping;
+    
     @Lob
     private String original;
 
