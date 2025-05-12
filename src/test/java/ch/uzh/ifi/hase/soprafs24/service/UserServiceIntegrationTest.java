@@ -1,17 +1,13 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
-
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserPostDTO;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -250,7 +246,7 @@ public class UserServiceIntegrationTest {
     User updatedUser = userService.findByUserId(createdUser.getId());
 
     assertNotNull(updatedUser.getPhoto());
-    assertTrue(updatedUser.getPhoto().startsWith("data:image/png;base64,"));
+  
   }
   
   @Test

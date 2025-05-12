@@ -70,7 +70,7 @@ public class User implements Serializable {
   private ArrayList<String> flashcardSetsIds = new ArrayList<>();
 
   @Lob
-  private String photo;
+  private byte[] photo;
 
   public void setFlashcardSetId(String flashcardSetId){
     this.flashcardSetsIds.add(flashcardSetId);
@@ -130,10 +130,10 @@ public class User implements Serializable {
     return privacy;
   }
   
-  public String getPhoto() {
+  public byte[] getPhoto() {
       return photo;
   }
-  public void setPhoto(String photo) {
+  public void setPhoto(byte[] photo) {
       this.photo = photo;
   }
   public void setChats(String chatId){

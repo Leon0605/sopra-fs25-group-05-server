@@ -27,7 +27,7 @@ public class Message implements Serializable  {
     private String status;
 
     
-    @Lob
+ 
     @Embedded
     private LanguageMapping languageMapping;
     
