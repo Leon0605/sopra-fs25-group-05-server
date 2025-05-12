@@ -128,6 +128,7 @@ public class UserService {
   }
 
   public User getSingleUser(long userId, String token){
+        System.out.println(token);
         User user = findByUserId(userId);
         User privacyUser = new User();
       privacyUser.setPrivacy(user.getPrivacy());
@@ -181,6 +182,7 @@ public class UserService {
     newUser.setToken(UUID.randomUUID().toString());
     newUser.setStatus(UserStatus.ONLINE);
     newUser.setLanguage("en");
+    newUser.setPrivacy("private");
     checkIfUserExists(newUser);
     // saves the given entity but data is only persisted in the database once
     // flush() is called

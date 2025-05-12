@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,6 +26,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.hamcrest.Matchers.contains;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -127,9 +129,10 @@ public class RestChatControllerTest {
 
         given(chatService.getAllMessageWithChatId(chat.getChatId())).willReturn(messages);
         given(chatService.transformMessageToOutput(message, user.getLanguage())).willReturn(outgoingMessage);
-        given(userRepository.findByToken(Token)).willReturn(user);
+        given(userService.findByUserId(user.getId())).willReturn(user);
+        willDoNothing().given(chatService).updateMessageStatus(Mockito.any(), Mockito.any());
 
-        MockHttpServletRequestBuilder getRequest = get("/chats/" + chat.getChatId() + "/" + Token).contentType(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder getRequest = get("/chats/" + chat.getChatId() + "/" + user.getId()).contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(getRequest).andExpect(status().isOk())
                 .andExpect(jsonPath("$" , hasSize(1)))
@@ -141,25 +144,31 @@ public class RestChatControllerTest {
     }
 
     @Test
-    public void givenInputs_whenInvalidToken_thenNotFound() throws Exception {
+    public void givenInputs_whenInvalidUserId_thenNotFound() throws Exception {
         String Token = "invalidToken";
         Chat chat = new Chat();
         chat.setChatId("1");
+        Message message = new Message();
+        ArrayList<Message> messages = new ArrayList<>();
+        messages.add(message);
+        User user = new User();
+        user.setId(1L);
+        given(chatService.getAllMessageWithChatId(chat.getChatId())).willReturn(messages);
+        given(userService.findByUserId(user.getId())).willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        given(userRepository.findByToken(Token)).willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-        MockHttpServletRequestBuilder getRequest = get("/chats/" + chat.getChatId() + "/" + Token).contentType(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder getRequest = get("/chats/" + chat.getChatId() + "/" + user.getId()).contentType(MediaType.APPLICATION_JSON);
         mockMvc.perform(getRequest).andExpect(status().isNotFound());
     }
 
     @Test
     public void givenInputs_whenInvalidChatId_thenNotFound() throws Exception {
-        String Token = "validToken";
+        User user = new User();
+        user.setId(1L);
         Chat chat = new Chat();
         chat.setChatId("1");
 
         given(chatService.getAllMessageWithChatId(chat.getChatId())).willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
-        MockHttpServletRequestBuilder getRequest = get("/chats/"+ chat.getChatId()+ "/" + Token).contentType(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder getRequest = get("/chats/"+ chat.getChatId()+ "/" + user.getId()).contentType(MediaType.APPLICATION_JSON);
         mockMvc.perform(getRequest).andExpect(status().isNotFound());
     }
 

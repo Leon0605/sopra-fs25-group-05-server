@@ -42,6 +42,8 @@ public class Chat implements Serializable {
     public void setLanguages(HashSet<String> languages){this.languages=languages;}
     public HashSet<String> getLanguages(){return languages;}
 
+
+
     private ArrayList<Long> userIds;
 
     public void setUserIds(ArrayList<Long> userIds) {
