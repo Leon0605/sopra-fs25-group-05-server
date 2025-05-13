@@ -57,7 +57,7 @@ public class RestChatController {
     }
 
 
-    @PutMapping("/{messageId}/{userId}")
+    @PutMapping("/chats/{messageId}/{userId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
 
