@@ -274,6 +274,23 @@ public class FlashcardServiceTest {
         assertTrue(testFlashcardSet.getFlashcardsIds().isEmpty());
     }
     @Test
+    public void testUpdateFlashcardSetName(){
+        Mockito.when(userService.findByUserToken((testUser.getToken()))).thenReturn(testUser);
+        Mockito.doReturn(testFlashcardSet).when(flashcardService).findByFlashcardSetId(testFlashcardSet.getFlashcardSetId());
+
+        
+        IncomingNewFlashcardSet incomingNewFlashcardSet = new IncomingNewFlashcardSet();
+        String update = "New Name";
+        incomingNewFlashcardSet.setFlashcardSetName(update);
+        flashcardService.updateFlashcardSetName(testUser.getToken(), testFlashcardSet.getFlashcardSetId(), incomingNewFlashcardSet);
+
+        ArgumentCaptor<FlashcardSet> captor = ArgumentCaptor.forClass(FlashcardSet.class);
+        Mockito.verify(flashcardSetRepository, times(1)).save(captor.capture());
+        FlashcardSet updatedFlashcardSet = captor.getValue();
+        assertEquals(update, updatedFlashcardSet.getFlashcardSetName());
+
+    }
+    @Test
     public void testDeleteFlashcardSet(){
         String token = testUser.getToken();
     

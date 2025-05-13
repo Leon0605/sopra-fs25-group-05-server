@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.UUID;
 
-import ch.uzh.ifi.hase.soprafs24.constant.ReadByUsers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -15,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.constant.LanguageMapping;
+import ch.uzh.ifi.hase.soprafs24.constant.ReadByUsers;
 import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Chat;
 import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.IncomingMessage;
 import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Message;
@@ -99,6 +99,8 @@ public class ChatService {
         message.setTimestamp(LocalDateTime.now(ZoneId.of("Europe/Zurich")));
         return message;
     }
+    
+    @Transactional
     public void saveMessage(Message message){
         Chat chat = chatRepository.findByChatId(message.getChatId());
         if (chat == null){
@@ -128,6 +130,51 @@ public class ChatService {
             message.setStatus("read");
         }
 
+    }
+
+    public void addUserToChat(String chatId, long userId){
+        Chat chat = chatRepository.findByChatId(chatId);
+        User user = userService.findByUserId(userId);
+        if(chat == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Chat not found");
+        }
+        if(chat.getUserIds().contains(userId)){
+            return;
+        }
+        if(!(chat.getLanguages().contains(user.getLanguage()))){
+            chat.getLanguages().add(user.getLanguage());
+        }
+        user.getChats().add(chatId);
+        chat.getUserIds().add(userId);
+
+        userRepository.save(user);
+        userRepository.flush();
+        chatRepository.save(chat);
+        chatRepository.flush();
+    }
+
+    public void removeUserFromChat(String chatId, long userId){
+        Chat chat = chatRepository.findByChatId(chatId);
+        User user = userService.findByUserId(userId);
+        if(chat == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Chat not found");
+        }
+        if(!(chat.getUserIds().contains(userId))){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"User not in chat");
+        }
+        for(long id: chat.getUserIds()){
+            User u = userService.findByUserId(id);
+            if (u.getLanguage().equals(user.getLanguage())) {
+                break;
+            }
+            chat.getLanguages().remove(u.getLanguage());
+        }
+        chat.getUserIds().remove(userId);
+        user.getChats().remove(chatId);
+        userRepository.save(user);
+        userRepository.flush();
+        chatRepository.save(chat);
+        chatRepository.flush();
     }
 
     public OutgoingMessage transformMessageToOutput(Message message, String Language){

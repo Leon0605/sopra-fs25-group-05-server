@@ -81,7 +81,7 @@ public class FlashcardService {
             flashcard.setContentFront(incomingNewFlashcard.getContentFront());
         }
         else{
-        flashcard.setContentBack(AzureAPI.AzureTranslate(incomingNewFlashcard.getContentFront(), user.getLanguage(), user.getLearningLanguage()));
+        flashcard.setContentBack(AzureAPI.AzureTranslate(incomingNewFlashcard.getContentFront(), flashcardSet.getLanguage(), flashcardSet.getLearningLanguage()));
         }
 
         flashcardRepository.save(flashcard);
@@ -110,6 +110,13 @@ public class FlashcardService {
         flashcardRepository.save(flashcard);
         flashcardRepository.flush();
 
+    }
+    public void updateFlashcardSetName(String userToken,String flashcardSetId, IncomingNewFlashcardSet IncommingNewFlashcardSet){
+        User user = userService.findByUserToken(userToken);
+        FlashcardSet flashcardSet = findByFlashcardSetId(flashcardSetId);
+        flashcardSet.setFlashcardSetName(IncommingNewFlashcardSet.getFlashcardSetName());
+        flashcardSetRepository.save(flashcardSet);
+        flashcardSetRepository.flush();
     }
     public void deleteFlashcard(String userToken,String flashcardSetId,String flashcardId){
         User user = userService.findByUserToken(userToken);

@@ -2,8 +2,10 @@ package ch.uzh.ifi.hase.soprafs24.entity.FlashcardEntities;
 
 import java.util.ArrayList;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 @Entity
@@ -12,6 +14,8 @@ public class FlashcardSet {
     @Id
     private String flashcardSetId;
 
+    @Lob
+    @Column(name="flashcard__ids", columnDefinition="BLOB")
     private ArrayList<String> flashcardsIds = new ArrayList<>();
     private String learningLanguage;
     private Long userId;
