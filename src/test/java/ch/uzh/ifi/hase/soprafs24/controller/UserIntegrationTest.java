@@ -1,29 +1,31 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
 
-import static org.hamcrest.Matchers.hasSize;
+import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
+import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.service.UserService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.web.server.ResponseStatusException;
+import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
+
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import org.springframework.web.server.ResponseStatusException;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
-import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserPostDTO;
 
 
 @SpringBootTest
@@ -95,7 +97,6 @@ public class UserIntegrationTest {
                 .andExpect(jsonPath("$[1].username").value(testUser2.getUsername()));
     }
 
-/*
     @Test
     public void getOneUser_SomeoneElseOpenExists_Success() throws Exception{
         User testUser = new User();
@@ -115,7 +116,6 @@ public class UserIntegrationTest {
     public void getOneUser_UserDoesNotExist_Failure() throws Exception{
         mockMvc.perform(get("/users/99999").contentType(MediaType.APPLICATION_JSON).header("Token", "someToken")).andExpect(status().isNotFound());
     }
-        */ 
     private String asJsonString(final Object object) {
         try {
             return new ObjectMapper().writeValueAsString(object);
