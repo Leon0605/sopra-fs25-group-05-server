@@ -98,6 +98,12 @@ public class FlashcardController {
     public void updatedContentOfFlashcard(@RequestHeader("Authorization") String userToken, @PathVariable String flashcardSetId,@PathVariable String flashcardId, @RequestBody IncomingNewFlashcard incomingNewFlashcard){
         flashcardService.updateFlashcard(userToken,flashcardSetId,flashcardId,incomingNewFlashcard);
     }
+    @PutMapping("flashcards/{flashcardSetId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void updatedNameOfFlashcard(@RequestHeader("Authorization") String userToken, @PathVariable String flashcardSetId, @RequestBody IncomingNewFlashcardSet incomingNewFlashcardSet){
+        flashcardService.updateFlashcardSetName(userToken,flashcardSetId,incomingNewFlashcardSet);
+    }
     
     //delete one flashcard
     @DeleteMapping("flashcards/{flashcardSetId}/{flashcardId}")

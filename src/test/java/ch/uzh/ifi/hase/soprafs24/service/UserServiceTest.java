@@ -23,15 +23,19 @@ import org.springframework.web.server.ResponseStatusException;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Chat;
 import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
+import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.ChatRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.MessageRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserChangePasswordDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserPutDTO;
 
 public class UserServiceTest {
-
+  @Mock
+  private ChatRepository chatRepository;
   @Mock
   private UserRepository userRepository;
-
+  @Mock
+  private MessageRepository messageRepository;
   @InjectMocks
   @Spy
   private UserService userService;
@@ -268,7 +272,7 @@ public class UserServiceTest {
     userService.updateUserProfilePictureWithUserId(testUser.getId(), photo);
     
     assertNotNull(testUser.getPhoto());
-    assertTrue(testUser.getPhoto().startsWith("data:image/png;base64,"));
+    
 
   }
   @Test
@@ -361,7 +365,7 @@ public class UserServiceTest {
     }).when(userService).findByUserId(Mockito.anyLong());
 
 
-    userService.acceptFriendRequest(testUser.getId(), testUser.getToken(), testUser2.getId());
+    userService.handleFriendRequest(testUser.getId(), testUser.getToken(), testUser2.getId(), true);
 
     assertTrue(testUser.getReceivedFriendRequestsList().isEmpty());
     assertTrue(testUser2.getSentFriendRequestsList().isEmpty());
@@ -387,7 +391,7 @@ public class UserServiceTest {
         return id.equals(1L) ? testUser : testUser2;
     }).when(userService).findByUserId(Mockito.anyLong());
 
-    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.acceptFriendRequest(testUser.getId(), "wrongToken", testUser2.getId()));
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.handleFriendRequest(testUser.getId(), "wrongToken", testUser2.getId(), true));
 
     assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatus());
   }
@@ -408,7 +412,7 @@ public class UserServiceTest {
         Long id = invocation.getArgument(0); 
         return id.equals(1L) ? testUser : testUser2;
     }).when(userService).findByUserId(Mockito.anyLong());
-    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.acceptFriendRequest(testUser.getId(), testUser.getToken(), testUser2.getId()));
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.handleFriendRequest(testUser.getId(), testUser.getToken(), testUser2.getId(), true));
 
     assertEquals(HttpStatus.CONFLICT, exception.getStatus());
     }

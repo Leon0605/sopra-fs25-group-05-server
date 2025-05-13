@@ -1,13 +1,12 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Chat;
-import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Message;
-import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.ChatRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.MessageRepository;
-import ch.uzh.ifi.hase.soprafs24.service.API.AzureAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +19,15 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Chat;
+import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Message;
 import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
+import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.ChatRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.MessageRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserChangePasswordDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserPutDTO;
+import ch.uzh.ifi.hase.soprafs24.service.API.AzureAPI;
 
 
 
@@ -69,24 +73,28 @@ public class UserService {
   public void updateUserProfilePictureWithUserId(Long userId, MultipartFile photo){
 
     User user = findByUserId(userId);
-    String dataUrl;
+    //String dataUrl;
+    byte[] bytes;
     try {
-      String base64 = Base64.getEncoder().encodeToString(photo.getBytes());
-      dataUrl = "data:image/png;base64," + base64;
+      //String base64 = Base64.getEncoder().encodeToString(photo.getBytes());
+      //dataUrl = "data:image/png;base64," + base64;
+      bytes= photo.getBytes();
      
     } catch (IOException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Picture format is wrong");
     }
-    user.setPhoto(dataUrl);
+    user.setPhoto(bytes);
     userRepository.save(user);
     userRepository.flush();
   }
-
+  @Transactional
   public void updateUserWithUserId(Long userId, UserPutDTO userPutDTO){
     User user = findByUserId(userId);
     if(userPutDTO.getLanguage() != null){
       String language = userPutDTO.getLanguage();
       user.setLanguage(language);
+      ArrayList <Message> updatedMessages = new ArrayList<>();
+      ArrayList <Chat> updatedChats = new ArrayList<>();
       for(String chatId: user.getChats()){
           Chat chat = chatRepository.findByChatId(chatId);
           for(String messageId: chat.getMessagesId()){
@@ -94,8 +102,7 @@ public class UserService {
               if(message.getLanguageMapping().getContent(language) == null){
                   String translation = AzureAPI.AzureTranslate(message.getOriginal(), message.getOriginalLanguage(), language);
                   message.getLanguageMapping().setContent(language, translation);
-                  messageRepository.save(message);
-                  messageRepository.flush();
+                  updatedMessages.add(message);
               }
           }
           HashSet<String> chatLanguages = new HashSet<>();
@@ -103,9 +110,12 @@ public class UserService {
               chatLanguages.add(findByUserId(userIds).getLanguage());
           }
           chat.setLanguages(chatLanguages);
-          chatRepository.save(chat);
-          chatRepository.flush();
+          updatedChats.add(chat);
       }
+      chatRepository.saveAll(updatedChats);
+      chatRepository.flush();
+      messageRepository.saveAll(updatedMessages);
+      messageRepository.flush();
     }
     if(userPutDTO.getLearningLanguage() != null){
       user.setLearningLanguage(userPutDTO.getLearningLanguage());
@@ -181,6 +191,8 @@ public class UserService {
     newUser.setToken(UUID.randomUUID().toString());
     newUser.setStatus(UserStatus.ONLINE);
     newUser.setLanguage("en");
+    newUser.setLearningLanguage("en");
+    newUser.setPrivacy("private");
     checkIfUserExists(newUser);
     // saves the given entity but data is only persisted in the database once
     // flush() is called
