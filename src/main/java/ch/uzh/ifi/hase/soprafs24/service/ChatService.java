@@ -83,12 +83,14 @@ public class ChatService {
         Message message = new Message();
 
         LanguageMapping languageMap= new LanguageMapping();
+        ReadByUsers readByUsers = new ReadByUsers();
         Long senderID = incomingMessage.getUserId();
         String originalMessage = incomingMessage.getContent();
         message.setOriginal(originalMessage);
         message.setChatId(incomingMessage.getChatId());
         message.setUserId(senderID);
         message.setStatus("sent");
+        message.setReadByUser(readByUsers);
 
         String senderLanguage = userService.findByUserId(senderID).getLanguage();
         languageMap.setContent(senderLanguage, originalMessage);
