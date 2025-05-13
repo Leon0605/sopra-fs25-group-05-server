@@ -92,7 +92,7 @@ public class RestChatController {
         ArrayList<OutgoingMessageDTO> outgoingMessageDTOS = new ArrayList<>();
 
         for(Message message: messages){
-            chatService.updateMessageStatus(message.getChatId(), userId);
+            chatService.updateMessageStatus(message.getMessageId(), userId);
             OutgoingMessage outgoingMessage = chatService.transformMessageToOutput(message, userLanguage);
             outgoingMessageDTOS.add(DTOMapper.INSTANCE.convertOutgoingMessageToOutgoingMessageDTO(outgoingMessage));
         }
