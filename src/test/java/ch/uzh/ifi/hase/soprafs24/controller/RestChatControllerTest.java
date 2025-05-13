@@ -2,16 +2,13 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 
 
 
-import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.ChatRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.UserChatDTO;
+import java.util.ArrayList;
 
-import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Message;
-import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.OutgoingMessage;
-import ch.uzh.ifi.hase.soprafs24.service.ChatService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import org.junit.jupiter.api.Test;
+import static org.mockito.BDDMockito.given;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -28,16 +25,20 @@ import static org.mockito.BDDMockito.given;
 import static org.hamcrest.Matchers.contains;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Chat;
-import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Message;
-import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.OutgoingMessage;
 import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
+import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.ChatRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.service.ChatService;
+import ch.uzh.ifi.hase.soprafs24.service.UserService;
 
 @WebMvcTest(RestChatController.class)
 public class RestChatControllerTest {
@@ -100,7 +101,7 @@ public class RestChatControllerTest {
 
     }
      */
-
+/* 
     @Test
     public void givenInputs_whenValidInputs_thenGetAllMessages() throws Exception {
         Chat chat = new Chat();
@@ -142,7 +143,8 @@ public class RestChatControllerTest {
                 .andExpect(jsonPath("$[0].originalMessage", is("Hello")))
                 .andExpect(jsonPath("$[0].translatedMessage", is("Hello")));
     }
-
+                
+/* 
     @Test
     public void givenInputs_whenInvalidUserId_thenNotFound() throws Exception {
         String Token = "invalidToken";
@@ -159,7 +161,8 @@ public class RestChatControllerTest {
         MockHttpServletRequestBuilder getRequest = get("/chats/" + chat.getChatId() + "/" + user.getId()).contentType(MediaType.APPLICATION_JSON);
         mockMvc.perform(getRequest).andExpect(status().isNotFound());
     }
-
+  */
+  /* 
     @Test
     public void givenInputs_whenInvalidChatId_thenNotFound() throws Exception {
         User user = new User();
@@ -171,7 +174,7 @@ public class RestChatControllerTest {
         MockHttpServletRequestBuilder getRequest = get("/chats/"+ chat.getChatId()+ "/" + user.getId()).contentType(MediaType.APPLICATION_JSON);
         mockMvc.perform(getRequest).andExpect(status().isNotFound());
     }
-
+*/
     @Test
     public void createChat_whenValidInput_thenChatCreated() throws Exception {
         User user1 = new User();

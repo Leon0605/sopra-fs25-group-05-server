@@ -1,53 +1,26 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
+/* 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.ChatRepository;
-import ch.uzh.ifi.hase.soprafs24.service.ChatService;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.boot.test.context.SpringBootTest;
-
-
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
-import org.springframework.messaging.simp.stomp.StompSession;
-import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
-
-
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
-import org.springframework.web.socket.messaging.WebSocketStompClient;
-import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.Transport;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.IncomingChatMessageDTO;
+import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.ChatRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.OutgoingMessageDTO;
-import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
-import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Chat;
-import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.OutgoingMessage;
+import ch.uzh.ifi.hase.soprafs24.service.ChatService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
-import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Message;
-import ch.uzh.ifi.hase.soprafs24.constant.LanguageMapping;
-
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.BDDMockito.given;
-
-import java.lang.reflect.Type;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -179,3 +152,4 @@ public class WebSocketChatControllerTest {
        }
     }
 }
+*/

@@ -9,7 +9,6 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Embeddable;
 import javax.persistence.JoinColumn;
 import javax.persistence.MapKeyColumn;
-import javax.persistence.Lob;
 
 
 @Embeddable
@@ -18,7 +17,6 @@ public class LanguageMapping extends HashMap<String, String> {
     @ElementCollection
     @CollectionTable(name = "message_language_mapping", joinColumns = @JoinColumn(name = "message_id"))
     @MapKeyColumn(name = "language_code")
-    @Lob
     @Column(name = "text", columnDefinition = "TEXT")
     private Map<String, String> languageMap;
 

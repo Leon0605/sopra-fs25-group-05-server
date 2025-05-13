@@ -47,6 +47,8 @@ public class User implements Serializable {
   @Column(nullable = false)
   private String password;
 
+  @Lob
+  @Column(name="chats_ids", columnDefinition="BLOB")
   private ArrayList<String> chats = new ArrayList<>();
   
   private String language;
@@ -63,10 +65,12 @@ public class User implements Serializable {
 
   private ArrayList<Long> sentFriendRequestsList = new ArrayList<>();
   
+  @Lob
+  @Column(name="flashcards_sets_ids", columnDefinition="BLOB")
   private ArrayList<String> flashcardSetsIds = new ArrayList<>();
 
   @Lob
-  private String photo;
+  private byte[] photo;
 
   public void setFlashcardSetId(String flashcardSetId){
     this.flashcardSetsIds.add(flashcardSetId);
@@ -126,10 +130,10 @@ public class User implements Serializable {
     return privacy;
   }
   
-  public String getPhoto() {
+  public byte[] getPhoto() {
       return photo;
   }
-  public void setPhoto(String photo) {
+  public void setPhoto(byte[] photo) {
       this.photo = photo;
   }
   public void setChats(String chatId){

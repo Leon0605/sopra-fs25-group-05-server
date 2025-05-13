@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.UUID;
 
-import ch.uzh.ifi.hase.soprafs24.constant.ReadByUsers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -15,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs24.constant.LanguageMapping;
+import ch.uzh.ifi.hase.soprafs24.constant.ReadByUsers;
 import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Chat;
 import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.IncomingMessage;
 import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Message;
@@ -99,6 +99,8 @@ public class ChatService {
         message.setTimestamp(LocalDateTime.now(ZoneId.of("Europe/Zurich")));
         return message;
     }
+    
+    @Transactional
     public void saveMessage(Message message){
         Chat chat = chatRepository.findByChatId(message.getChatId());
         if (chat == null){
