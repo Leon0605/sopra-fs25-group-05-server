@@ -1,7 +1,10 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
-import static org.hamcrest.Matchers.is;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
+
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,10 +66,8 @@ public class UserControllerTest {
   public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
     // given
     User user = new User();
-    user.setPassword("Password");
     user.setId(1L);
     user.setUsername("firstname@lastname");
-    user.setStatus(UserStatus.OFFLINE);
 
     List<User> allUsers = Collections.singletonList(user);
 
@@ -82,7 +83,7 @@ public class UserControllerTest {
         .andExpect(jsonPath("$", hasSize(1)))
         .andExpect(jsonPath("$[0].id", is(user.getId().intValue())))
         .andExpect(jsonPath("$[0].username", is(user.getUsername())))
-        .andExpect(jsonPath("$[0].status", is(user.getStatus().toString())));
+        .andExpect(jsonPath("$[0].photo", nullValue()));
   }
 
   @Test

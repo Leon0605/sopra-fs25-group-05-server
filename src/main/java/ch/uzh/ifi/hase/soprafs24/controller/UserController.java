@@ -94,6 +94,7 @@ public class UserController {
   @ResponseBody
   public UserGetDTO getOneUser(@PathVariable String userId, @RequestHeader("Token") String token){
     long id = Long.parseLong(userId);
+    System.out.println(token);
     return DTOMapper.INSTANCE.convertEntityToUserGetDTO(userService.getSingleUser(id, token));
   }
 
@@ -142,7 +143,8 @@ public class UserController {
   @PutMapping("/users/{receiverUserId}/friend-request")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody
-  public void handleAcceptFriendRequest(@PathVariable String receiverUserId, @RequestHeader("senderUserId") Long senderUserId, @RequestHeader("Authorization") String receiverUserToken, @RequestHeader("Accept") boolean accept){
+  public void handleAcceptFriendRequest(@PathVariable String receiverUserId, @RequestHeader("senderUserId") Long senderUserId, @RequestHeader("Authorization") String receiverUserToken, @RequestHeader("Accept") String acceptStr){
+      boolean accept = Boolean.parseBoolean(acceptStr);
     userService.handleFriendRequest(Long.parseLong(receiverUserId),receiverUserToken, senderUserId, accept);
   }
 

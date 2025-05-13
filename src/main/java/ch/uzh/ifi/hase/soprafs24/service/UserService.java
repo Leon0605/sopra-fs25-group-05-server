@@ -138,6 +138,7 @@ public class UserService {
   }
 
   public User getSingleUser(long userId, String token){
+        System.out.println(token);
         User user = findByUserId(userId);
         User privacyUser = new User();
       privacyUser.setPrivacy(user.getPrivacy());

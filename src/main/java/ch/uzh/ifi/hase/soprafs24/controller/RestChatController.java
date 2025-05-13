@@ -57,7 +57,7 @@ public class RestChatController {
     }
 
 
-    @PutMapping("/{messageId}/{userId}")
+    @PutMapping("/chats/{messageId}/{userId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
 
@@ -65,6 +65,21 @@ public class RestChatController {
         chatService.updateMessageStatus(messageId, userId);
     }
 
+    @PutMapping("/chats/{chatId}/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+
+    public void groupChatHandling(@PathVariable String chatId, @PathVariable Long userId, @RequestHeader("Decision") String decision){
+        if(decision.equals("add")){
+            chatService.addUserToChat(chatId, userId);
+        }else if(decision.equals("remove")){
+            chatService.removeUserFromChat(chatId, userId);
+        }
+        else{
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The decision has to be either add or remove");
+        }
+    }
+    //commit comment
     @GetMapping("/chats/{chatId}/{userId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody

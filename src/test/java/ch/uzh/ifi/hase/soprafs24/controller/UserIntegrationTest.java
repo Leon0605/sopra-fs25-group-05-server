@@ -95,23 +95,25 @@ public class UserIntegrationTest {
                 .andExpect(jsonPath("$[1].username").value(testUser2.getUsername()));
     }
 
-    /*  @Test
-    public void getOneUser_UserExists_Success() throws Exception{
+/*
+    @Test
+    public void getOneUser_SomeoneElseOpenExists_Success() throws Exception{
         User testUser = new User();
         testUser.setUsername("Username");
         testUser.setPassword("Password");
         testUser.setStatus(UserStatus.ONLINE);
         testUser.setToken("token");
+        testUser.setPrivacy("open");
         userRepository.save(testUser);
 
-        MockHttpServletRequestBuilder getRequest = get("/users/" + testUser.getId()).contentType(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder getRequest = get("/users/" + testUser.getId()).contentType(MediaType.APPLICATION_JSON).header("Token", "someDifferentToken");
         mockMvc.perform(getRequest).andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(testUser.getUsername()));
     }
 
     @Test
     public void getOneUser_UserDoesNotExist_Failure() throws Exception{
-        mockMvc.perform(get("/users/99999").contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound());
+        mockMvc.perform(get("/users/99999").contentType(MediaType.APPLICATION_JSON).header("Token", "someToken")).andExpect(status().isNotFound());
     }
         */ 
     private String asJsonString(final Object object) {
