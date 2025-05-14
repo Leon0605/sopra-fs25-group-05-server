@@ -83,7 +83,7 @@ public class UserService {
 
       try{
           String bucketName = "sopra-group5-profile-pictures";
-          String objectName = "/" + userId.toString() + ".png";
+          String objectName =  userId.toString() + ".png";
 
           Storage storage = StorageOptions.getDefaultInstance().getService();
 
@@ -94,8 +94,6 @@ public class UserService {
 
           storage.create(blobInfo, photo.getBytes());
 
-          // Make the image publicly accessible
-          storage.createAcl(blobId, Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER));
 
           String publicUrl = "https://storage.googleapis.com/" + bucketName + "/" + objectName;
           User user = findByUserId(userId);
