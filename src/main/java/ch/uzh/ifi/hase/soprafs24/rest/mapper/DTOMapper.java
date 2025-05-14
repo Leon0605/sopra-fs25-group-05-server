@@ -13,7 +13,6 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.IncomingChatMessageDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.OutgoingMessageDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.UserChatDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.*;
-import ch.uzh.ifi.hase.soprafs24.rest.mapper.PhotoMapper;
 
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -33,7 +32,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.FlashcardDTO.FlashcardSetGetDTO;
  * creating information (POST).
  */
 
-@Mapper(uses = { PhotoMapper.class })
+@Mapper
 public interface DTOMapper {
 
   DTOMapper INSTANCE = Mappers.getMapper(DTOMapper.class);

@@ -17,6 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
+import com.google.cloud.storage.Acl;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Chat;
@@ -72,21 +77,41 @@ public class UserService {
 
   public void updateUserProfilePictureWithUserId(Long userId, MultipartFile photo){
 
-    User user = findByUserId(userId);
-    //String dataUrl;
-    byte[] bytes;
-    try {
-      //String base64 = Base64.getEncoder().encodeToString(photo.getBytes());
-      //dataUrl = "data:image/png;base64," + base64;
-      bytes= photo.getBytes();
-     
-    } catch (IOException e) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Picture format is wrong");
+      if (photo.isEmpty() || !photo.getContentType().equals("image/png")) {
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Picture format is wrong");
+      }
+
+      try{
+          String bucketName = "sopra-group5-profile-pictures";
+          String objectName = "/" + userId.toString() + ".png";
+
+          Storage storage = StorageOptions.getDefaultInstance().getService();
+
+          BlobId blobId = BlobId.of(bucketName, objectName);
+          BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
+                  .setContentType(photo.getContentType())
+                  .build();
+
+          storage.create(blobInfo, photo.getBytes());
+
+          // Make the image publicly accessible
+          storage.createAcl(blobId, Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER));
+
+          String publicUrl = "https://storage.googleapis.com/" + bucketName + "/" + objectName;
+          User user = findByUserId(userId);
+          user.setPhoto(publicUrl);
+          userRepository.save(user);
+          userRepository.flush();
+          // Optionally save URL to user's DB record
+          // userService.updateProfilePictureUrl(id, publicUrl);
+
+          //return ResponseEntity.ok(Map.of("url", publicUrl));
+
+      } catch (IOException e) {
+          throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "Upload failed");
+      }
     }
-    user.setPhoto(bytes);
-    userRepository.save(user);
-    userRepository.flush();
-  }
+
   @Transactional
   public void updateUserWithUserId(Long userId, UserPutDTO userPutDTO){
     User user = findByUserId(userId);

@@ -69,8 +69,7 @@ public class User implements Serializable {
   @Column(name="flashcards_sets_ids", columnDefinition="BLOB")
   private ArrayList<String> flashcardSetsIds = new ArrayList<>();
 
-  @Lob
-  private byte[] photo;
+  private String photo;
 
   public void setFlashcardSetId(String flashcardSetId){
     this.flashcardSetsIds.add(flashcardSetId);
@@ -130,10 +129,10 @@ public class User implements Serializable {
     return privacy;
   }
   
-  public byte[] getPhoto() {
+  public String getPhoto() {
       return photo;
   }
-  public void setPhoto(byte[] photo) {
+  public void setPhoto(String photo) {
       this.photo = photo;
   }
   public void setChats(String chatId){
