@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import ch.uzh.ifi.hase.soprafs24.constant.FlashcardStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.FlashcardEntities.Flashcard;
 import ch.uzh.ifi.hase.soprafs24.entity.FlashcardEntities.FlashcardSet;
 import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
@@ -66,6 +67,7 @@ public class FlashcardControllerTest {
         testFlashcard.setFlashcardId("FlashcardId");
         testFlashcard.setContentFront("Hello");
         testFlashcard.setContentBack("Hallo");
+        testFlashcard.setStatus(FlashcardStatus.NOTTRAINED);
         testFlashcard.setLanguage(testUser.getLanguage());
         testFlashcard.setLearningLanguage(testUser.getLearningLanguage());
         
@@ -90,7 +92,7 @@ public class FlashcardControllerTest {
     public void testGetAllFlashcardSets() throws Exception{
         Mockito.when(flashcardService.findByFlashcardSetId(testFlashcardSet.getFlashcardSetId())).thenReturn(testFlashcardSet);
         Mockito.when(userService.findByUserToken(testUser.getToken())).thenReturn(testUser);
-
+        Mockito.when(flashcardService.findByFlashcardId(testFlashcard.getFlashcardId())).thenReturn(testFlashcard);
         MockHttpServletRequestBuilder getRequest = get("/flashcards").contentType(MediaType.APPLICATION_JSON).header("Authorization", testUser.getToken());
 
         mockMvc.perform(getRequest).andExpect(status().isOk())

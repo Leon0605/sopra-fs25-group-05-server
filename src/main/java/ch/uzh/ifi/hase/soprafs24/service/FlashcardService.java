@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import ch.uzh.ifi.hase.soprafs24.constant.FlashcardStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.FlashcardEntities.Flashcard;
 import ch.uzh.ifi.hase.soprafs24.entity.FlashcardEntities.FlashcardSet;
 import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
@@ -75,6 +76,7 @@ public class FlashcardService {
         flashcard.setLearningLanguage(flashcardSet.getLearningLanguage());
         flashcard.setLanguage(flashcardSet.getLanguage());
         flashcard.setContentFront(incomingNewFlashcard.getContentFront());
+        flashcard.setStatus(FlashcardStatus.NOTTRAINED);
 
         if(incomingNewFlashcard.getContentBack() != null){
             flashcard.setContentBack(incomingNewFlashcard.getContentBack());
@@ -107,6 +109,7 @@ public class FlashcardService {
             String contentBack = AzureAPI.AzureTranslate(incomingNewFlashcard.getContentFront(), flashcard.getLanguage() , flashcard.getLearningLanguage());
             flashcard.setContentBack(contentBack);
         }
+        flashcard.setStatus(FlashcardStatus.NOTTRAINED);
         flashcardRepository.save(flashcard);
         flashcardRepository.flush();
 
@@ -146,6 +149,30 @@ public class FlashcardService {
 
         userRepository.save(user);
         userRepository.flush();
+    }
+    public void updateFlashcardStatus(String userToken, boolean status, String flashcardSetId,String flashcardId){
+        User user = userService.findByUserToken(userToken);
+        FlashcardSet flashcardSet = findByFlashcardSetId(flashcardSetId);
+        Flashcard flashcard = findByFlashcardId(flashcardId);
+
+        if(status)flashcard.setStatus(FlashcardStatus.CORRECT);
+        else flashcard.setStatus(FlashcardStatus.WRONG);
+
+        flashcardRepository.save(flashcard);
+        flashcardRepository.flush();
+   
+    }
+    public void resetFlashcardStatus(String userToken, String flashcardSetId){
+        User user = userService.findByUserToken(userToken);
+        FlashcardSet flashcardSet = findByFlashcardSetId(flashcardSetId);
+
+        for(String flashcardId : flashcardSet.getFlashcardsIds()){
+            
+            Flashcard flashcard = findByFlashcardId(flashcardId);
+            flashcard.setStatus(FlashcardStatus.NOTTRAINED);
+            flashcardRepository.save(flashcard);
+            flashcardRepository.flush();
+        }
     }
     public String generateId(){
         return UUID.randomUUID().toString();
