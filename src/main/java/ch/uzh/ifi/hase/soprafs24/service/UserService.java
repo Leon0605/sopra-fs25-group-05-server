@@ -110,6 +110,11 @@ public class UserService {
       }
     }
 
+    public void deleteProfilePicture(Long userId){
+        User user = findByUserId(userId);
+        user.setPhoto(null);
+    }
+
   @Transactional
   public void updateUserWithUserId(Long userId, UserPutDTO userPutDTO){
     User user = findByUserId(userId);

@@ -121,6 +121,9 @@ public class ChatService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Message not found");
         }
         Chat chat = chatRepository.findByChatId(message.getChatId());
+        if(chat == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Chat not found");
+        }
         ReadByUsers readByUsers =  message.getReadByUser();
         if(readByUsers.getReadByUsers().contains(userId)){
             return;
@@ -164,6 +167,7 @@ public class ChatService {
         if(!(chat.getUserIds().contains(userId))){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"User not in chat");
         }
+        chat.getUserIds().remove(userId);
         for(long id: chat.getUserIds()){
             User u = userService.findByUserId(id);
             if (u.getLanguage().equals(user.getLanguage())) {
@@ -171,7 +175,6 @@ public class ChatService {
             }
             chat.getLanguages().remove(u.getLanguage());
         }
-        chat.getUserIds().remove(userId);
         user.getChats().remove(chatId);
         userRepository.save(user);
         userRepository.flush();

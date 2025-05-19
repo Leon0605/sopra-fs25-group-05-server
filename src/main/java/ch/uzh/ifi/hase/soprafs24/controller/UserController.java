@@ -5,16 +5,7 @@ import java.util.List;
 
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
@@ -54,6 +45,14 @@ public class UserController {
   public void updateProfilePicture(@PathVariable String userId, @RequestParam("photo") MultipartFile photo){
    
     userService.updateUserProfilePictureWithUserId(Long.parseLong(userId),photo);
+  }
+
+  @DeleteMapping("/users/{userId}/photo")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public void deleteProfilePicture(@PathVariable String userId){
+      Long id = Long.parseLong(userId);
+      userService.deleteProfilePicture(id);
   }
 
   @PostMapping("/login")
