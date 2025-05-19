@@ -119,6 +119,13 @@ public class RestChatController {
     }
     */
 
+    @GetMapping("/chats/{userId}/notifications")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public ArrayList<OutgoingMessageDTO> getUnreadMessages(@PathVariable Long userId){
+        return chatService.getUnreadMessages(userId);
+    }
+
 
     @PostMapping("/chats")
     @ResponseStatus(HttpStatus.CREATED)

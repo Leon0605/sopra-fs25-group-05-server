@@ -53,5 +53,7 @@ public class Chat implements Serializable {
         return userIds;
     }
 
+    public void addUserId(Long userId){this.userIds.add(userId);}
+
 
 }

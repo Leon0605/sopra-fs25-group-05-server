@@ -102,7 +102,7 @@ public class RestChatControllerTest {
      */
 
     @Test
-    public void givenInputs_whenValidInputs_thenGetAllMessages() throws Exception {
+    public void givenInputs_whenValidInputs_thenGetMessages() throws Exception {
         Chat chat = new Chat();
         chat.setChatId("1");
         String Token = "validToken";
@@ -144,7 +144,7 @@ public class RestChatControllerTest {
     }
 
     @Test
-    public void givenInputs_whenInvalidUserId_thenNotFound() throws Exception {
+    public void getMessages_whenInvalidUserId_thenNotFound() throws Exception {
         String Token = "invalidToken";
         Chat chat = new Chat();
         chat.setChatId("1");
@@ -161,7 +161,7 @@ public class RestChatControllerTest {
     }
 
     @Test
-    public void givenInputs_whenInvalidChatId_thenNotFound() throws Exception {
+    public void getMessages_whenInvalidChatId_thenNotFound() throws Exception {
         User user = new User();
         user.setId(1L);
         Chat chat = new Chat();
