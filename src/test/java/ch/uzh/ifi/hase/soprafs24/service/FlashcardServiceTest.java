@@ -2,6 +2,9 @@ package ch.uzh.ifi.hase.soprafs24.service;
 
 
 
+
+import java.util.List;
+
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -19,6 +22,7 @@ import org.mockito.Spy;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import ch.uzh.ifi.hase.soprafs24.constant.FlashcardStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.FlashcardEntities.Flashcard;
 import ch.uzh.ifi.hase.soprafs24.entity.FlashcardEntities.FlashcardSet;
 import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
@@ -52,6 +56,7 @@ public class FlashcardServiceTest {
     private User testUser;
     private FlashcardSet testFlashcardSet;
     private Flashcard testFlashcard;
+    private Flashcard testFlashcardTrained;
 
     @BeforeEach
     public void setup(){
@@ -65,27 +70,42 @@ public class FlashcardServiceTest {
         testUser.setToken("Token");
         testUser.setLearningLanguage("de");
 
-        testFlashcard = new Flashcard();
-        testFlashcard.setFlashcardId("FlashcardId");
-        testFlashcard.setContentFront("Hello");
-        testFlashcard.setContentBack("Hallo");
-        testFlashcard.setLanguage(testUser.getLanguage());
-        testFlashcard.setLearningLanguage(testUser.getLearningLanguage());
-        
         testFlashcardSet = new FlashcardSet();
         testFlashcardSet.setFlashcardSetId("SetId");
         testFlashcardSet.setFlashcardSetName("Test");
         testFlashcardSet.setLanguage(testUser.getLanguage());
         testFlashcardSet.setLearningLanguage(testUser.getLearningLanguage());
 
+        testFlashcard = new Flashcard();
+        testFlashcard.setFlashcardId("FlashcardId");
+        testFlashcard.setContentFront("Hello");
+        testFlashcard.setContentBack("Hallo");
+        testFlashcard.setLanguage(testFlashcardSet.getLanguage());
+        testFlashcard.setLearningLanguage(testFlashcardSet.getLearningLanguage());
+        testFlashcard.setStatus(FlashcardStatus.NOTTRAINED);
+
+        testFlashcardTrained = new Flashcard();
+        testFlashcardTrained.setFlashcardId("FlashcardId2");
+        testFlashcardTrained.setContentFront("Hello2");
+        testFlashcardTrained.setContentBack("Hallo2");
+        testFlashcardTrained.setLanguage(testFlashcardSet.getLanguage());
+        testFlashcardTrained.setLearningLanguage(testFlashcardSet.getLearningLanguage());
+        testFlashcardTrained.setStatus(FlashcardStatus.CORRECT);
+        
+        
+
         testFlashcardSet.setFlashcardsIds(testFlashcard.getFlashcardId());
+        testFlashcardSet.setFlashcardsIds(testFlashcardTrained.getFlashcardId());
         testFlashcard.setFlashcardSetId(testFlashcardSet.getFlashcardSetId());
         testUser.setFlashcardSetId(testFlashcardSet.getFlashcardSetId());
         testFlashcardSet.setUserId(testUser.getId());
         testFlashcard.setUserId(testUser.getId());
+        testFlashcardTrained.setUserId(testUser.getId());
+        testFlashcardTrained.setFlashcardSetId(testFlashcardSet.getFlashcardSetId());
 
         Mockito.when(userRepository.save(Mockito.any())).thenReturn(testUser);
-        Mockito.when(flashcardRepository.save(Mockito.any())).thenReturn(testFlashcard);
+        Mockito.when(flashcardRepository.save(testFlashcard)).thenReturn(testFlashcard);
+        Mockito.when(flashcardRepository.save(testFlashcardTrained)).thenReturn(testFlashcardTrained);
         Mockito.when(flashcardSetRepository.save(Mockito.any())).thenReturn(testFlashcardSet);
     }
 
@@ -159,7 +179,7 @@ public class FlashcardServiceTest {
 
         Mockito.when(userService.findByUserToken(token)).thenReturn(testUser);
         Mockito.doReturn(testFlashcardSet).when(flashcardService).findByFlashcardSetId(testFlashcardSet.getFlashcardSetId());
-        Mockito.when(flashcardService.generateId()).thenReturn("FlashcardId2");
+        Mockito.when(flashcardService.generateId()).thenReturn("newFlashcardId");
 
  
         flashcardService.createFlashcard(testFlashcardSet.getFlashcardSetId(), token, dto);
@@ -172,11 +192,12 @@ public class FlashcardServiceTest {
 
         assertEquals(createdFlashcard.getContentBack(), dto.getContentBack());
         assertEquals(createdFlashcard.getContentFront(), dto.getContentFront());
-        assertEquals(createdFlashcard.getFlashcardId(),"FlashcardId2");
+        assertEquals(createdFlashcard.getFlashcardId(),"newFlashcardId");
         assertEquals(createdFlashcard.getFlashcardSetId(), testFlashcardSet.getFlashcardSetId());
         assertEquals(createdFlashcard.getLanguage(), testFlashcardSet.getLanguage());
         assertEquals(createdFlashcard.getLearningLanguage(),testFlashcardSet.getLearningLanguage());
         assertEquals(createdFlashcard.getUserId(),testUser.getId());
+        assertEquals(createdFlashcard.getStatus(), FlashcardStatus.NOTTRAINED);
     }
     @Test
     public void testCreateFlashcardWithAzureTranslation(){
@@ -188,10 +209,10 @@ public class FlashcardServiceTest {
 
         Mockito.when(userService.findByUserToken(token)).thenReturn(testUser);
         Mockito.doReturn(testFlashcardSet).when(flashcardService).findByFlashcardSetId(testFlashcardSet.getFlashcardSetId());
-        Mockito.when(flashcardService.generateId()).thenReturn("FlashcardId2");
+        Mockito.when(flashcardService.generateId()).thenReturn("newFlashcardId");
             
         try (MockedStatic<AzureAPI> azureMock = mockStatic(AzureAPI.class)) {
-            azureMock.when(() ->AzureAPI.AzureTranslate(dto.getContentFront(),testUser.getLanguage(),testUser.getLearningLanguage())).thenReturn("Das ist ein Test");
+            azureMock.when(() ->AzureAPI.AzureTranslate(dto.getContentFront(),testFlashcardSet.getLanguage(),testFlashcardSet.getLearningLanguage())).thenReturn("Das ist ein Test");
             ArgumentCaptor<Flashcard> captor = ArgumentCaptor.forClass(Flashcard.class);
 
             flashcardService.createFlashcard(testFlashcardSet.getFlashcardSetId(), token, dto);
@@ -202,15 +223,70 @@ public class FlashcardServiceTest {
 
             assertEquals(createdFlashcard.getContentBack(), "Das ist ein Test");
             assertEquals(createdFlashcard.getContentFront(), dto.getContentFront());
-            assertEquals(createdFlashcard.getFlashcardId(),"FlashcardId2");
+            assertEquals(createdFlashcard.getFlashcardId(),"newFlashcardId");
             assertEquals(createdFlashcard.getFlashcardSetId(), testFlashcardSet.getFlashcardSetId());
             assertEquals(createdFlashcard.getLanguage(), testFlashcardSet.getLanguage());
             assertEquals(createdFlashcard.getLearningLanguage(),testFlashcardSet.getLearningLanguage());
             assertEquals(createdFlashcard.getUserId(),testUser.getId());
+            assertEquals(createdFlashcard.getStatus(), FlashcardStatus.NOTTRAINED);
         }        
     }
     @Test
-    public void testUpdateFlashcardWithNoAzureTranslation(){
+    public void testUpdateFlashcardTRAINEDWithNoAzureTranslation(){
+        String token = testUser.getToken();
+        IncomingNewFlashcard dto = new IncomingNewFlashcard();
+
+        dto.setContentFront("This is a Test");
+        dto.setContentBack("Das ist ein Test");
+
+        Mockito.when(userService.findByUserToken(token)).thenReturn(testUser);
+        Mockito.doReturn(testFlashcardSet).when(flashcardService).findByFlashcardSetId(testFlashcardSet.getFlashcardSetId());
+        Mockito.doReturn(testFlashcardTrained).when(flashcardService).findByFlashcardId(testFlashcardTrained.getFlashcardId());
+
+        assertEquals(testFlashcardTrained.getStatus(), FlashcardStatus.CORRECT);
+        flashcardService.updateFlashcard(testUser.getToken(), testFlashcardSet.getFlashcardSetId(), testFlashcardTrained.getFlashcardId(), dto);
+
+        ArgumentCaptor<Flashcard> captor = ArgumentCaptor.forClass(Flashcard.class);
+        Mockito.verify(flashcardRepository, times(1)).save(captor.capture());
+        Flashcard updatedFlashcard = captor.getValue();
+
+        assertEquals(updatedFlashcard.getContentBack(), dto.getContentBack());
+        assertEquals(updatedFlashcard.getContentFront(), dto.getContentFront());
+        assertEquals(updatedFlashcard.getStatus(),FlashcardStatus.NOTTRAINED);
+
+    }
+    @Test
+    public void testUpdateFlashcardTRAINEDWithAzureTranslation(){
+        String token = testUser.getToken();
+        IncomingNewFlashcard dto = new IncomingNewFlashcard();
+
+        dto.setContentFront("This is a Test");
+      
+
+        Mockito.when(userService.findByUserToken(token)).thenReturn(testUser);
+        Mockito.doReturn(testFlashcardSet).when(flashcardService).findByFlashcardSetId(testFlashcardSet.getFlashcardSetId());
+        Mockito.doReturn(testFlashcardTrained).when(flashcardService).findByFlashcardId(testFlashcardTrained.getFlashcardId());
+
+        
+        
+        try (MockedStatic<AzureAPI> azureMock = mockStatic(AzureAPI.class)) {
+            azureMock.when(() ->AzureAPI.AzureTranslate(dto.getContentFront(),testFlashcardSet.getLanguage(),testFlashcardSet.getLearningLanguage())).thenReturn("Das ist ein Test");
+            ArgumentCaptor<Flashcard> captor = ArgumentCaptor.forClass(Flashcard.class);
+
+            assertEquals(testFlashcardTrained.getStatus(),FlashcardStatus.CORRECT);
+            flashcardService.updateFlashcard(testUser.getToken(), testFlashcardSet.getFlashcardSetId(), testFlashcardTrained.getFlashcardId(), dto);
+
+            Mockito.verify(flashcardRepository, times(1)).save(captor.capture());
+            
+            Flashcard updatedFlashcard = captor.getValue();
+            assertEquals(updatedFlashcard.getContentBack(), "Das ist ein Test");
+            assertEquals(updatedFlashcard.getContentFront(), dto.getContentFront());
+            assertEquals(updatedFlashcard.getStatus(),FlashcardStatus.NOTTRAINED);
+
+        }
+    }
+    @Test
+    public void testUpdateFlashcardNOTTRAINEDWithNoAzureTranslation(){
         String token = testUser.getToken();
         IncomingNewFlashcard dto = new IncomingNewFlashcard();
 
@@ -221,19 +297,20 @@ public class FlashcardServiceTest {
         Mockito.doReturn(testFlashcardSet).when(flashcardService).findByFlashcardSetId(testFlashcardSet.getFlashcardSetId());
         Mockito.doReturn(testFlashcard).when(flashcardService).findByFlashcardId(testFlashcard.getFlashcardId());
 
-        
+        assertEquals(testFlashcard.getStatus(), FlashcardStatus.NOTTRAINED);
         flashcardService.updateFlashcard(testUser.getToken(), testFlashcardSet.getFlashcardSetId(), testFlashcard.getFlashcardId(), dto);
 
         ArgumentCaptor<Flashcard> captor = ArgumentCaptor.forClass(Flashcard.class);
         Mockito.verify(flashcardRepository, times(1)).save(captor.capture());
-        Flashcard createdFlashcard = captor.getValue();
+        Flashcard updatedFlashcard = captor.getValue();
 
-        assertEquals(createdFlashcard.getContentBack(), dto.getContentBack());
-        assertEquals(createdFlashcard.getContentFront(), dto.getContentFront());
+        assertEquals(updatedFlashcard.getContentBack(), dto.getContentBack());
+        assertEquals(updatedFlashcard.getContentFront(), dto.getContentFront());
+        assertEquals(updatedFlashcard.getStatus(),FlashcardStatus.NOTTRAINED);
 
     }
     @Test
-    public void testUpdateFlashcardWithAzureTranslation(){
+    public void testUpdateFlashcardNOTTRAINEDWithAzureTranslation(){
         String token = testUser.getToken();
         IncomingNewFlashcard dto = new IncomingNewFlashcard();
 
@@ -245,18 +322,20 @@ public class FlashcardServiceTest {
         Mockito.doReturn(testFlashcard).when(flashcardService).findByFlashcardId(testFlashcard.getFlashcardId());
 
         
-    
+        
         try (MockedStatic<AzureAPI> azureMock = mockStatic(AzureAPI.class)) {
-            azureMock.when(() ->AzureAPI.AzureTranslate(dto.getContentFront(),testUser.getLanguage(),testUser.getLearningLanguage())).thenReturn("Das ist ein Test");
+            azureMock.when(() ->AzureAPI.AzureTranslate(dto.getContentFront(),testFlashcardSet.getLanguage(),testFlashcardSet.getLearningLanguage())).thenReturn("Das ist ein Test");
             ArgumentCaptor<Flashcard> captor = ArgumentCaptor.forClass(Flashcard.class);
 
+            assertEquals(testFlashcard.getStatus(),FlashcardStatus.NOTTRAINED);
             flashcardService.updateFlashcard(testUser.getToken(), testFlashcardSet.getFlashcardSetId(), testFlashcard.getFlashcardId(), dto);
 
             Mockito.verify(flashcardRepository, times(1)).save(captor.capture());
             
-            Flashcard createdFlashcard = captor.getValue();
-            assertEquals(createdFlashcard.getContentBack(), "Das ist ein Test");
-            assertEquals(createdFlashcard.getContentFront(), dto.getContentFront());
+            Flashcard updatedFlashcard = captor.getValue();
+            assertEquals(updatedFlashcard.getContentBack(), "Das ist ein Test");
+            assertEquals(updatedFlashcard.getContentFront(), dto.getContentFront());
+            assertEquals(updatedFlashcard.getStatus(),FlashcardStatus.NOTTRAINED);
 
         }
     }
@@ -271,7 +350,7 @@ public class FlashcardServiceTest {
         flashcardService.deleteFlashcard(token, testFlashcardSet.getFlashcardSetId(), testFlashcard.getFlashcardId());
         Mockito.verify(flashcardRepository, times(1)).delete(testFlashcard);
         Mockito.verify(flashcardSetRepository, times(1)).save(testFlashcardSet);
-        assertTrue(testFlashcardSet.getFlashcardsIds().isEmpty());
+        assertEquals(testFlashcardSet.getFlashcardsIds().size(), 1);
     }
     @Test
     public void testUpdateFlashcardSetName(){
@@ -297,6 +376,7 @@ public class FlashcardServiceTest {
         Mockito.when(userService.findByUserToken(token)).thenReturn(testUser);
         Mockito.doReturn(testFlashcardSet).when(flashcardService).findByFlashcardSetId(testFlashcardSet.getFlashcardSetId());
         Mockito.doReturn(testFlashcard).when(flashcardService).findByFlashcardId(testFlashcard.getFlashcardId());
+        Mockito.doReturn(testFlashcardTrained).when(flashcardService).findByFlashcardId(testFlashcardTrained.getFlashcardId());
 
         flashcardService.deleteFlashcardSet(token, testFlashcardSet.getFlashcardSetId());
 
@@ -304,6 +384,90 @@ public class FlashcardServiceTest {
         Mockito.verify(flashcardSetRepository, times(1)).delete(testFlashcardSet);
         Mockito.verify(userRepository, times(1)).save(testUser);
         assertTrue(testUser.getFlashcardSetsIds().isEmpty());
+    }
+
+    @Test
+    public void testUpdatedFlashcardStatusFromNOTTRAINEDToCORRECT(){
+        String token = testUser.getToken();
+    
+        Mockito.when(userService.findByUserToken(token)).thenReturn(testUser);
+        Mockito.doReturn(testFlashcardSet).when(flashcardService).findByFlashcardSetId(testFlashcardSet.getFlashcardSetId());
+        Mockito.doReturn(testFlashcard).when(flashcardService).findByFlashcardId(testFlashcard.getFlashcardId());
+
+        assertEquals(testFlashcard.getStatus(), FlashcardStatus.NOTTRAINED);
+        flashcardService.updateFlashcardStatus(token, true, testFlashcardSet.getFlashcardSetId(), testFlashcard.getFlashcardId());
+        ArgumentCaptor<Flashcard> captor = ArgumentCaptor.forClass(Flashcard.class);
+        Mockito.verify(flashcardRepository, times(1)).save(captor.capture());
+        Flashcard updatedFlashcard = captor.getValue();
+        assertEquals(updatedFlashcard.getStatus(), FlashcardStatus.CORRECT);
+    }
+    @Test
+    public void testUpdatedFlashcardStatusFromNOTTRAINEDToWRONG(){
+        String token = testUser.getToken();
+    
+        Mockito.when(userService.findByUserToken(token)).thenReturn(testUser);
+        Mockito.doReturn(testFlashcardSet).when(flashcardService).findByFlashcardSetId(testFlashcardSet.getFlashcardSetId());
+        Mockito.doReturn(testFlashcard).when(flashcardService).findByFlashcardId(testFlashcard.getFlashcardId());
+
+        assertEquals(testFlashcard.getStatus(), FlashcardStatus.NOTTRAINED);
+        flashcardService.updateFlashcardStatus(token, false, testFlashcardSet.getFlashcardSetId(), testFlashcard.getFlashcardId());
+        ArgumentCaptor<Flashcard> captor = ArgumentCaptor.forClass(Flashcard.class);
+        Mockito.verify(flashcardRepository, times(1)).save(captor.capture());
+        Flashcard updatedFlashcard = captor.getValue();
+        assertEquals(updatedFlashcard.getStatus(), FlashcardStatus.WRONG);
+    }
+    @Test
+    public void testUpdatedFlashcardStatusFromCORRECTToWRONG(){
+        String token = testUser.getToken();
+    
+        Mockito.when(userService.findByUserToken(token)).thenReturn(testUser);
+        Mockito.doReturn(testFlashcardSet).when(flashcardService).findByFlashcardSetId(testFlashcardSet.getFlashcardSetId());
+        Mockito.doReturn(testFlashcardTrained).when(flashcardService).findByFlashcardId(testFlashcardTrained.getFlashcardId());
+
+        assertEquals(testFlashcardTrained.getStatus(), FlashcardStatus.CORRECT);
+        flashcardService.updateFlashcardStatus(token, false, testFlashcardSet.getFlashcardSetId(), testFlashcardTrained.getFlashcardId());
+        ArgumentCaptor<Flashcard> captor = ArgumentCaptor.forClass(Flashcard.class);
+        Mockito.verify(flashcardRepository, times(1)).save(captor.capture());
+        Flashcard updatedFlashcard = captor.getValue();
+        assertEquals(updatedFlashcard.getStatus(), FlashcardStatus.WRONG);
+    }
+    @Test
+    public void testUpdatedFlashcardStatusFromWRONGToCORRECT(){
+        String token = testUser.getToken();
+        testFlashcardTrained.setStatus(FlashcardStatus.WRONG);
+        Mockito.when(userService.findByUserToken(token)).thenReturn(testUser);
+        Mockito.doReturn(testFlashcardSet).when(flashcardService).findByFlashcardSetId(testFlashcardSet.getFlashcardSetId());
+        Mockito.doReturn(testFlashcardTrained).when(flashcardService).findByFlashcardId(testFlashcardTrained.getFlashcardId());
+
+        assertEquals(testFlashcardTrained.getStatus(), FlashcardStatus.WRONG);
+        flashcardService.updateFlashcardStatus(token, true, testFlashcardSet.getFlashcardSetId(), testFlashcardTrained.getFlashcardId());
+        ArgumentCaptor<Flashcard> captor = ArgumentCaptor.forClass(Flashcard.class);
+        Mockito.verify(flashcardRepository, times(1)).save(captor.capture());
+        Flashcard updatedFlashcard = captor.getValue();
+        assertEquals(updatedFlashcard.getStatus(), FlashcardStatus.CORRECT);
+    }
+    @Test
+    public void testResetAllFlashcardStatus(){
+        String token = testUser.getToken();
+    
+        Mockito.when(userService.findByUserToken(token)).thenReturn(testUser);
+        Mockito.doReturn(testFlashcardSet).when(flashcardService).findByFlashcardSetId(testFlashcardSet.getFlashcardSetId());
+        Mockito.doReturn(testFlashcardTrained).when(flashcardService).findByFlashcardId(testFlashcardTrained.getFlashcardId());
+        Mockito.doReturn(testFlashcard).when(flashcardService).findByFlashcardId(testFlashcard.getFlashcardId());
+
+        assertEquals(testFlashcard.getStatus(),FlashcardStatus.NOTTRAINED);
+        assertEquals(testFlashcardTrained.getStatus(),FlashcardStatus.CORRECT);
+
+        flashcardService.resetFlashcardStatus(token, testFlashcardSet.getFlashcardSetId());
+        
+        ArgumentCaptor<Flashcard> captor = ArgumentCaptor.forClass(Flashcard.class);
+        Mockito.verify(flashcardRepository, times(2)).save(captor.capture());
+        List<Flashcard> updatedFlashcards = captor.getAllValues();
+        assertEquals(2, updatedFlashcards.size());
+        assertEquals( updatedFlashcards.get(0).getStatus(),FlashcardStatus.NOTTRAINED);
+        assertEquals( updatedFlashcards.get(1).getStatus(),FlashcardStatus.NOTTRAINED);
+
+
     }
     @Test
     public void testGenerateId(){

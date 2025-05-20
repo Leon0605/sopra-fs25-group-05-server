@@ -4,6 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import ch.uzh.ifi.hase.soprafs24.constant.FlashcardStatus;
+
 @Entity
 @Table(name = "FLASHCARD")
 public class Flashcard {
@@ -16,6 +18,15 @@ public class Flashcard {
     private String contentBack;
     private String flashcardSetId;
     private String language;
+    private FlashcardStatus status;
+
+    public void setStatus(FlashcardStatus status){
+        this.status = status;
+    }
+    public FlashcardStatus getStatus(){
+        return status;
+    }
+    
     public void setLanguage(String language){
         this.language = language;
     }

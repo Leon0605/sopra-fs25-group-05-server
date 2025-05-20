@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import ch.uzh.ifi.hase.soprafs24.constant.FlashcardStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.FlashcardEntities.Flashcard;
 import ch.uzh.ifi.hase.soprafs24.entity.FlashcardEntities.FlashcardSet;
 import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
@@ -59,14 +62,45 @@ public class FlashcardController {
     public ArrayList<FlashcardSetGetDTO> getAllFlashcardSets(@RequestHeader("Authorization") String userToken){
         User user = userService.findByUserToken(userToken);
         ArrayList<FlashcardSetGetDTO> flashcardSetsGetDTOs = new ArrayList<>();
+        
+        
 
         for(String flashcardSetId : user.getFlashcardSetsIds()){
             FlashcardSet flashcardSet = flashcardService.findByFlashcardSetId(flashcardSetId);
             FlashcardSetGetDTO flashcardSetGetDTO = DTOMapper.INSTANCE.convertFlashcardSetEntityToFlashcardSetGetDTO(flashcardSet);
 
-            int flashcardQuantity = flashcardSet.getFlashcardsIds().size();
+            
+            ArrayList<String> flashcardIds = flashcardSet.getFlashcardsIds();
+            int flashcardQuantity = flashcardIds.size();
             flashcardSetGetDTO.setFlashcardQuantity(flashcardQuantity);
 
+            if(flashcardQuantity>0){
+                float notTrained = 0;
+                float correct = 0;
+                float  wrong = 0;
+
+                for(String flashcardId: flashcardIds){
+                    Flashcard flashcard = flashcardService.findByFlashcardId(flashcardId);
+                    switch (flashcard.getStatus()) {
+                        case NOTTRAINED -> notTrained+=1;
+                        case CORRECT -> correct+=1;
+                        case WRONG -> wrong+=1;
+                        default -> {
+                        }
+                    }
+                }
+                Map<String,Float> statistic = new HashMap<>();
+                statistic.put("NotTrained",(notTrained/flashcardQuantity)*100);
+                statistic.put("Correct",(correct/flashcardQuantity)*100);
+                statistic.put("Wrong",(wrong/flashcardQuantity)*100);
+                flashcardSetGetDTO.setStatistic(statistic);
+            }else{
+                Map<String,Float> statistic = new HashMap<>();
+                statistic.put("NotTrained",0F);
+                statistic.put("Correct",0F);
+                statistic.put("Wrong",0F);
+                flashcardSetGetDTO.setStatistic(statistic);
+            }
             flashcardSetsGetDTOs.add(flashcardSetGetDTO);
         }
         return flashcardSetsGetDTOs;
@@ -119,4 +153,19 @@ public class FlashcardController {
     public void deleteFlashcardSet(@RequestHeader("Authorization") String userToken, @PathVariable String flashcardSetId){
         flashcardService.deleteFlashcardSet(userToken,flashcardSetId);
     }
+    //update status of a flashcard
+    @PutMapping("flashcards/{flashcardSetId}/{flashcardId}/status")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void updateFlashcardStatus(@RequestHeader("Authorization") String userToken,@RequestHeader("Status") boolean status, @PathVariable String flashcardSetId,@PathVariable String flashcardId){
+        flashcardService.updateFlashcardStatus(userToken,status,flashcardSetId,flashcardId);
+    }
+    //reset all flashcardStatus inside a flashcardSet
+    @PutMapping("flashcards/{flashcardSetId}/status-reset")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void updateFlashcardStatus(@RequestHeader("Authorization") String userToken, @PathVariable String flashcardSetId){
+        flashcardService.resetFlashcardStatus(userToken,flashcardSetId);
+    }
+    
 }

@@ -94,7 +94,39 @@ public class FlashcardControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].flashcardQuantity").value(1))
                 .andExpect(jsonPath("$[0].learningLanguage").value(testUser.getLearningLanguage()))
                 .andExpect(jsonPath("$[0].flashcardSetId").value(flashcardSetId))
-                .andExpect(jsonPath("$[0].language").value(testUser.getLanguage()));
+                .andExpect(jsonPath("$[0].language").value(testUser.getLanguage()))
+                .andExpect(jsonPath("$[0].statistic.NotTrained").value(100.0))
+                .andExpect(jsonPath("$[0].statistic.Wrong").value(0.0))
+                .andExpect(jsonPath("$[0].statistic.Correct").value(0.0)); 
+  }
+  @Test
+  public void testGetFlashcardsSetsNoFlashcars ()throws Exception{
+    IncomingNewFlashcardSet incomingNewFlashcardSet = new IncomingNewFlashcardSet();
+    String setName = "SetName";
+    incomingNewFlashcardSet.setFlashcardSetName(setName);
+    flashcardService.createFlashcardSet(testUser.getToken(), incomingNewFlashcardSet);
+    flashcardService.createFlashcardSet(testUser.getToken(), incomingNewFlashcardSet);
+    flashcardService.createFlashcardSet(testUser.getToken(), incomingNewFlashcardSet);
+    flashcardService.createFlashcardSet(testUser.getToken(), incomingNewFlashcardSet);
+    flashcardService.createFlashcardSet(testUser.getToken(), incomingNewFlashcardSet);
+    flashcardService.createFlashcardSet(testUser.getToken(), incomingNewFlashcardSet);
+    
+    FlashcardSet flashcardSet = flashcardSetRepository.findAll().get(0);
+    String flashcardSetId = flashcardSet.getFlashcardSetId();
+
+
+    MockHttpServletRequestBuilder getRequest = get("/flashcards").contentType(MediaType.APPLICATION_JSON).header("Authorization",testUser.getToken());
+        mockMvc.perform(getRequest).andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").value(hasSize(6)))
+                .andExpect(jsonPath("$[0].flashcardSetName").value(setName))
+                .andExpect(jsonPath("$[0].flashcardQuantity").value(0))
+                .andExpect(jsonPath("$[0].learningLanguage").value(testUser.getLearningLanguage()))
+                .andExpect(jsonPath("$[0].flashcardSetId").value(flashcardSetId))
+                .andExpect(jsonPath("$[0].language").value(testUser.getLanguage()))
+                .andExpect(jsonPath("$[0].statistic.NotTrained").value(0.0))
+                .andExpect(jsonPath("$[0].statistic.Wrong").value(0.0))
+                .andExpect(jsonPath("$[0].statistic.Correct").value(0.0)); 
   }
   @Test
   public void testGetFlashcards ()throws Exception{
@@ -127,6 +159,8 @@ public class FlashcardControllerIntegrationTest {
                 .andExpect(jsonPath("$[0].contentFront").value(flashcard.getContentFront()))
                 .andExpect(jsonPath("$[0].contentBack").value(flashcard.getContentBack()))
                 .andExpect(jsonPath("$[0].language").value(testUser.getLanguage()))
-                .andExpect(jsonPath("$[0].learningLanguage").value(testUser.getLearningLanguage()));
+                .andExpect(jsonPath("$[0].learningLanguage").value(testUser.getLearningLanguage()))
+                .andExpect(jsonPath("$[0].status").value("NOTTRAINED"));
+
   }
 }

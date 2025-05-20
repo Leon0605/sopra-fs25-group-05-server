@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.server.ResponseStatusException;
 
+import ch.uzh.ifi.hase.soprafs24.constant.FlashcardStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.FlashcardEntities.Flashcard;
 import ch.uzh.ifi.hase.soprafs24.entity.FlashcardEntities.FlashcardSet;
 import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
@@ -133,6 +134,7 @@ public class FlashcardServiceIntegrationTest {
     assertEquals(contentFront,flashcard.getContentFront());
     assertEquals(flashcardSet.getLanguage(),flashcard.getLanguage());
     assertEquals(flashcardSet.getLearningLanguage(),flashcard.getLearningLanguage());
+    assertEquals(flashcard.getStatus(), FlashcardStatus.NOTTRAINED);
   }
   @Test
   public void testCreateFlashcardWithAzure(){
@@ -159,6 +161,7 @@ public class FlashcardServiceIntegrationTest {
         assertEquals(contentFront,flashcard.getContentFront());
         assertEquals(flashcardSet.getLanguage(),flashcard.getLanguage());
         assertEquals(flashcardSet.getLearningLanguage(),flashcard.getLearningLanguage());
+        assertEquals(flashcard.getStatus(), FlashcardStatus.NOTTRAINED);
     }
   }
   @Test
@@ -196,6 +199,7 @@ public class FlashcardServiceIntegrationTest {
     FlashcardSet flashcardSet = flashcardSetRepository.findAll().get(0);
     String flashcardSetId = flashcardSet.getFlashcardSetId();
 
+
     IncomingNewFlashcard incomingNewFlashcard = new IncomingNewFlashcard();
     String contentFront ="contentFront";
     String contentBack = "contentBack";
@@ -223,10 +227,14 @@ public class FlashcardServiceIntegrationTest {
     flashcardService.createFlashcard(flashcardSetId, testUser.getToken(), incomingNewFlashcard);
 
     Flashcard flashcard = flashcardRepository.findAll().get(0);
+    flashcard.setStatus(FlashcardStatus.CORRECT);
+    flashcardRepository.save(flashcard);
 
-    
+    flashcard = flashcardRepository.findAll().get(0);
+
     assertEquals(contentBack, flashcard.getContentBack());
     assertEquals(contentFront,flashcard.getContentFront());
+    assertEquals(flashcard.getStatus(), FlashcardStatus.CORRECT);
 
     IncomingNewFlashcard incomingNewFlashcardUpdate = new IncomingNewFlashcard();
     String updatedContentFront ="contentFrontUpdated";
@@ -242,6 +250,7 @@ public class FlashcardServiceIntegrationTest {
     
     assertEquals(updatedContentBack, updatedFlashcard.getContentBack());
     assertEquals(updatedContentFront,updatedFlashcard.getContentFront());
+    assertEquals(updatedFlashcard.getStatus(), FlashcardStatus.NOTTRAINED);
   }
   @Test
   public void updateFlashcardWithAzure(){
@@ -260,10 +269,14 @@ public class FlashcardServiceIntegrationTest {
     flashcardService.createFlashcard(flashcardSetId, testUser.getToken(), incomingNewFlashcard);
 
     Flashcard flashcard = flashcardRepository.findAll().get(0);
+    flashcard.setStatus(FlashcardStatus.CORRECT);
+    flashcardRepository.save(flashcard);
 
-    
+    flashcard = flashcardRepository.findAll().get(0);
+
     assertEquals(contentBack, flashcard.getContentBack());
     assertEquals(contentFront,flashcard.getContentFront());
+    assertEquals(flashcard.getStatus(), FlashcardStatus.CORRECT);
 
     IncomingNewFlashcard incomingNewFlashcardUpdate = new IncomingNewFlashcard();
     String updatedContentFront ="contentFront";
@@ -279,6 +292,7 @@ public class FlashcardServiceIntegrationTest {
         
         assertEquals(azureReturn, updatedFlashcard.getContentBack());
         assertEquals(updatedContentFront,updatedFlashcard.getContentFront());
+        assertEquals(updatedFlashcard.getStatus(), FlashcardStatus.NOTTRAINED);
     }
   }
   @Test
@@ -354,4 +368,51 @@ public class FlashcardServiceIntegrationTest {
     assertTrue(flashcardSetRepository.findAll().isEmpty());
     assertTrue(userRepository.findAll().get(0).getFlashcardSetsIds().isEmpty());
   }
+  @Test
+  public void testUpdatedFlashcardStatusFromNOTTRAINEDToCORRECT(){
+    IncomingNewFlashcardSet incomingNewFlashcardSet = new IncomingNewFlashcardSet();
+    String setName = "SetName";
+    incomingNewFlashcardSet.setFlashcardSetName(setName);
+    flashcardService.createFlashcardSet(testUser.getToken(), incomingNewFlashcardSet);
+    FlashcardSet flashcardSet = flashcardSetRepository.findAll().get(0);
+    String flashcardSetId = flashcardSet.getFlashcardSetId();
+
+    IncomingNewFlashcard incomingNewFlashcard = new IncomingNewFlashcard();
+    String contentFront ="contentFront";
+    String contentBack = "contentBack";
+    incomingNewFlashcard.setContentFront(contentFront);
+    incomingNewFlashcard.setContentBack(contentBack);
+    flashcardService.createFlashcard(flashcardSetId, testUser.getToken(), incomingNewFlashcard);
+
+    Flashcard flashcard = flashcardRepository.findAll().get(0);
+    assertEquals(flashcard.getStatus(), FlashcardStatus.NOTTRAINED);
+
+    flashcardService.updateFlashcardStatus(testUser.getToken(), true, flashcardSetId, flashcard.getFlashcardId());
+    Flashcard updatedFlashcard = flashcardRepository.findAll().get(0);
+    assertEquals(updatedFlashcard.getStatus(), FlashcardStatus.CORRECT);
+  }
+  @Test
+  public void testUpdatedFlashcardStatusFromNOTTRAINEDToWRONG(){
+    IncomingNewFlashcardSet incomingNewFlashcardSet = new IncomingNewFlashcardSet();
+    String setName = "SetName";
+    incomingNewFlashcardSet.setFlashcardSetName(setName);
+    flashcardService.createFlashcardSet(testUser.getToken(), incomingNewFlashcardSet);
+    FlashcardSet flashcardSet = flashcardSetRepository.findAll().get(0);
+    String flashcardSetId = flashcardSet.getFlashcardSetId();
+
+    IncomingNewFlashcard incomingNewFlashcard = new IncomingNewFlashcard();
+    String contentFront ="contentFront";
+    String contentBack = "contentBack";
+    incomingNewFlashcard.setContentFront(contentFront);
+    incomingNewFlashcard.setContentBack(contentBack);
+    flashcardService.createFlashcard(flashcardSetId, testUser.getToken(), incomingNewFlashcard);
+
+    Flashcard flashcard = flashcardRepository.findAll().get(0);
+    assertEquals(flashcard.getStatus(), FlashcardStatus.NOTTRAINED);
+
+    flashcardService.updateFlashcardStatus(testUser.getToken(), false, flashcardSetId, flashcard.getFlashcardId());
+    Flashcard updatedFlashcard = flashcardRepository.findAll().get(0);
+    assertEquals(updatedFlashcard.getStatus(), FlashcardStatus.WRONG);
+  }
+
 }
