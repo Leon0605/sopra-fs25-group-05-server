@@ -86,9 +86,7 @@ public class UserService {
           String bucketName = "sopra-group5-profile-pictures";
           String objectName =  userId.toString() + UUID.randomUUID().toString() + ".png";
           
-          String oldUrl = user.getPhoto();  
-          String oldObjectName = oldUrl.substring(oldUrl.lastIndexOf('/') + 1);
-
+          
           Storage storage = StorageOptions.getDefaultInstance().getService();
 
           BlobId blobId = BlobId.of(bucketName, objectName);
@@ -97,7 +95,12 @@ public class UserService {
                   .build();
 
           storage.create(blobInfo, photo.getBytes());
-          storage.delete(BlobId.of(bucketName, oldObjectName));
+          
+          if(user.getPhoto() != null){
+            String oldUrl = user.getPhoto();  
+            String oldObjectName = oldUrl.substring(oldUrl.lastIndexOf('/') + 1);
+            storage.delete(BlobId.of(bucketName, oldObjectName));
+          }
 
           String publicUrl = "https://storage.googleapis.com/" + bucketName + "/" + objectName;
          
