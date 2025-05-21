@@ -17,11 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
-import com.google.cloud.storage.Acl;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Chat;
@@ -82,8 +82,12 @@ public class UserService {
       }
 
       try{
+          User user = findByUserId(userId);
           String bucketName = "sopra-group5-profile-pictures";
-          String objectName =  userId.toString() + ".png";
+          String objectName =  userId.toString() + UUID.randomUUID().toString() + ".png";
+          
+          String oldUrl = user.getPhoto();  
+          String oldObjectName = oldUrl.substring(oldUrl.lastIndexOf('/') + 1);
 
           Storage storage = StorageOptions.getDefaultInstance().getService();
 
@@ -93,10 +97,10 @@ public class UserService {
                   .build();
 
           storage.create(blobInfo, photo.getBytes());
-
+          storage.delete(BlobId.of(bucketName, oldObjectName));
 
           String publicUrl = "https://storage.googleapis.com/" + bucketName + "/" + objectName;
-          User user = findByUserId(userId);
+         
           user.setPhoto(publicUrl);
           userRepository.save(user);
           userRepository.flush();
