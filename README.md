@@ -12,6 +12,21 @@ Our secondary goal was to utilize the chats for language learning by providing a
 - WebSockets for real time chatting
 
 ## High-level components
+Below is a list of the core components used for the backend of our application.
+### 1. Websockets
+The Websockets are a core part of our application since they allow users to chat to each other in real time. The Websockets connection is handled by the [WebSocketConfig](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/configurations/WebSocketConfig.java) which provides an endpoint to establish a direct connection between client and server. It also specifies which client origins are allowed to connect to the server. The [WebSocketChatController](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/controller/WebSocketChatController.java) provides an endpoint where messages can be sent to and where they will be redistributed to the correct users in the correct format. 
+
+### 2. REST Chat Controller
+The [RestChatController](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/controller/RestChatController.java) is a second core component for our chat application. It is responsible for handling chat-related REST requests which are not handled by the [WebSockets](#1-websockets). It plays a crucial role for creating chats and restoring previously sent messages providing persistence of chat history when opening up a previously used chat.
+
+### 3. User Service
+The [UserService](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/UserService.java) is a core component of our application which handles all user-related functionalities. It handles both profile management(e.g. [sign-up](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/UserService.java#L226), [login](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/UserService.java#L213) and [updating](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/UserService.java#L126) a profile) and implements a friends system, forming the third pillar of the chatting service next to [Websockets](#1-websockets) and the [RestChatController](#2-rest-chat-controller).
+
+### 4. Flashcard Service
+The [FlashcardService](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/FlashcardService.java) is the component that handles flashcard-related functionality which was our secondary goal for this application. It allows user to [create](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/FlashcardService.java#L68) and train with flashcards to learn new languages.
+
+### 5. Azure API
+[AzureAPI](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/API/AzureAPI.java) is an [API provided by Microsoft](https://azure.microsoft.com/en-us/products/api-management) and is the external API used for this project. It is responsible for the [translation of chat messages](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/controller/WebSocketChatController.java#L54) but also assists users when [creating flashcards](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/FlashcardService.java#L86) in an unknown language.
 
 
 ## Launch & Deployment
@@ -117,6 +132,16 @@ Here are some features we envision for future contributions:
     When starting to use more sensitive data it would make sense to increase the security of the application with things like Cookies, 2FA, etc.
 
 ## Authors and acknowledgments
+### Authors
 
+- Christopher Robert Traill: Team Leader, Frontend Developer
+- Nikola Pavlovic: Backend Developer
+- Andy de Vantéry: Frontend Developer
+- Leon Matteo Schwager: Backend Developer
+
+### Acknowledgments
+This project was developed as part of the [Software Engineering Lab FS25](https://hasel.dev/teachings/fs25-sopra/) at the University of Zurich.
+
+Special thanks to our teaching assistant Ambros Eberhard for his continuous feedback and guidance throughout the project. 
 ## License
 
