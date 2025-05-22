@@ -4,6 +4,7 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.ChatRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.CreateChatDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.UserChatDTO;
 
 import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Message;
@@ -191,31 +192,42 @@ public class RestChatControllerTest {
         Chat createdChat = new Chat();
         createdChat.setChatId("1");
         createdChat.setUserIds(Ids);
+        createdChat.setName("someName");
+
+        CreateChatDTO createChatDTO = new CreateChatDTO();
+        createChatDTO.setUserIds(Ids);
+        createChatDTO.setChatName(createdChat.getName());
 
         given(userService.findByUserId(user1.getId())).willReturn(user1);
         given(userService.findByUserId(user2.getId())).willReturn(user2);
-        given(chatService.createChat(allUsers)).willReturn(createdChat);
+        given(chatService.createChat(Mockito.any(), Mockito.any())).willReturn(createdChat);
 
-        MockHttpServletRequestBuilder postRequest = post("/chats").contentType(MediaType.APPLICATION_JSON).content(asJsonString(Ids));
+        MockHttpServletRequestBuilder postRequest = post("/chats").contentType(MediaType.APPLICATION_JSON).content(asJsonString(createChatDTO));
         mockMvc.perform(postRequest).andExpect(status().isCreated())
                 .andExpect(jsonPath("$", is(1)));
     }
 
     @Test
     public void createChat_whenUserIdsNull_thenBadRequest() throws Exception {
-        ArrayList<String> ids = null;
-
-        MockHttpServletRequestBuilder postRequest = post("/chats").contentType(MediaType.APPLICATION_JSON).content(asJsonString(ids));
+        ArrayList<Long> Ids = null;
+        CreateChatDTO createChatDTO = new CreateChatDTO();
+        createChatDTO.setUserIds(Ids);
+        createChatDTO.setChatName("someName");
+        MockHttpServletRequestBuilder postRequest = post("/chats").contentType(MediaType.APPLICATION_JSON).content(asJsonString(createChatDTO));
         mockMvc.perform(postRequest).andExpect(status().isBadRequest());
 
     }
 
     @Test
     public void createChat_whenUserIdsTooSmall_thenBadRequest() throws Exception {
-        ArrayList<String> ids = new ArrayList<>();
-        ids.add("1");
+        ArrayList<Long> Ids = new ArrayList<>();
+        Ids.add(1L);
 
-        MockHttpServletRequestBuilder postRequest = post("/chats").contentType(MediaType.APPLICATION_JSON).content(asJsonString(ids));
+        CreateChatDTO createChatDTO = new CreateChatDTO();
+        createChatDTO.setUserIds(Ids);
+        createChatDTO.setChatName("someName");
+
+        MockHttpServletRequestBuilder postRequest = post("/chats").contentType(MediaType.APPLICATION_JSON).content(asJsonString(createChatDTO));
         mockMvc.perform(postRequest).andExpect(status().isBadRequest());
     }
 
@@ -231,9 +243,13 @@ public class RestChatControllerTest {
         Ids.add(user1.getId());
         Ids.add(user2.getId());
 
+        CreateChatDTO createChatDTO = new CreateChatDTO();
+        createChatDTO.setUserIds(Ids);
+        createChatDTO.setChatName("someName");
+
         given(userService.findByUserId(user1.getId())).willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        MockHttpServletRequestBuilder postRequest = post("/chats").contentType(MediaType.APPLICATION_JSON).content(asJsonString(Ids));
+        MockHttpServletRequestBuilder postRequest = post("/chats").contentType(MediaType.APPLICATION_JSON).content(asJsonString(createChatDTO));
         mockMvc.perform(postRequest).andExpect(status().isNotFound());
     }
 

@@ -276,7 +276,7 @@ public class UserService {
         ArrayList<User> users = new ArrayList<>();
         users.add(sender);
         users.add(receiver);
-        chatService.createChat(users);
+        chatService.createChat(users, null);
     }
     userRepository.save(sender);
     userRepository.save(receiver);

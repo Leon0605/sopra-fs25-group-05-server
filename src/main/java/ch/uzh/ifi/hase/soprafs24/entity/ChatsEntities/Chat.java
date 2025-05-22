@@ -23,6 +23,8 @@ public class Chat implements Serializable {
     
     private HashSet<String> languages = new HashSet<>();
 
+    private String name;
+
     public void setChatId(String chatId){
         this.chatId=chatId;
     }
@@ -54,6 +56,9 @@ public class Chat implements Serializable {
     }
 
     public void addUserId(Long userId){this.userIds.add(userId);}
+
+    public String getName() {return name;}
+    public void setName(String name) {this.name = name;}
 
 
 }

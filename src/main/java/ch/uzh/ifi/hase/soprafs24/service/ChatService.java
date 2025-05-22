@@ -41,7 +41,7 @@ public class ChatService {
         this.userService =userService;
         this.userRepository = userRepository;
     }
-    public Chat createChat(ArrayList<User> users) {
+    public Chat createChat(ArrayList<User> users, String chatName) {
         if (users == null || users.size() < 2) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A chat must have at least two users.");
         }
@@ -50,6 +50,7 @@ public class ChatService {
         ArrayList<Long> userIds = new ArrayList<>();
         HashSet<String> languages = new HashSet<>();
 
+        newChat.setName(chatName);
         newChat.setUserIds(userIds); 
         newChat.setChatId(generateId());
         newChat.setLanguages(languages);
@@ -87,6 +88,7 @@ public class ChatService {
         }
         return messages;
     }
+
     public ArrayList<Message> getAllMessageWithChatId(String chatId){
         Chat chat = chatRepository.findByChatId(chatId);
         if(chat == null){

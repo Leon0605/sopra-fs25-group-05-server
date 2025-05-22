@@ -66,6 +66,7 @@ public class ChatServiceTest {
 
         testChat = new Chat();
         testChat.setChatId("1");
+        testChat.setName("testChat");
         HashSet<String> languages = new HashSet<>();
         languages.add("en");
         testChat.setLanguages(languages);
@@ -103,13 +104,14 @@ public class ChatServiceTest {
         Mockito.when(userRepository.save(testUser2)).thenReturn(testUser2);
         Mockito.when(chatService.generateId()).thenReturn("1");
 
-        Chat createdChat = chatService.createChat(users);
+        Chat createdChat = chatService.createChat(users, testChat.getName());
         Mockito.verify(chatRepository, Mockito.times(1)).save(Mockito.any());
 
         assertEquals(testChat.getChatId(), createdChat.getChatId());
         assertEquals(testChat.getLanguages(), createdChat.getLanguages());
         assertTrue(testUser.getChats().contains(createdChat.getChatId()));
         assertTrue(testUser2.getChats().contains(createdChat.getChatId()));
+        assertEquals(testChat.getName(), createdChat.getName());
 
     }
 
@@ -120,7 +122,7 @@ public class ChatServiceTest {
 
         Mockito.when(chatService.generateId()).thenReturn("1");
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> chatService.createChat(users));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> chatService.createChat(users, null));
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
     }
 
