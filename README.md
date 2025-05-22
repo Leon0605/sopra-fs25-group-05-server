@@ -1,4 +1,4 @@
-# Habla!: A multilingual ChatApp
+# Habla! - A multilingual ChatApp
 
 ## Introduction
 Our primary goal for this project was to create a chat app, that would enable users that don't speak the same language to effortlessly chat with each other by integrating a translation service into the chat itself thus allowing to overcome language barriers. 
@@ -145,3 +145,6 @@ This project was developed as part of the [Software Engineering Lab FS25](https:
 Special thanks to our teaching assistant Ambros Eberhard for his continuous feedback and guidance throughout the project. 
 ## License
 
+This project is licensed under the Apache License 2.0.
+You are free to use, modify, and distribute this software, provided that proper attribution is given and all conditions of the license are met.
+For more information, see the [LICENSE](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/LICENSE) file.
