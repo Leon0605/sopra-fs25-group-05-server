@@ -335,7 +335,7 @@ public class UserServiceTest {
   public void deleteUserPhoto(){
     String photoUrl = "Photo URL";
     testUser.setPhoto(photoUrl);
-    Mockito.doReturn(testUser).when(userService.findByUserId(Mockito.anyLong()));
+    Mockito.doReturn(testUser).when(userService).findByUserId(Mockito.anyLong());
 
     assertEquals(testUser.getPhoto(), photoUrl);
     userService.deleteProfilePicture(testUser.getId());
