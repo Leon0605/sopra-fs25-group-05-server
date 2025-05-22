@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import java.io.IOException;
 import java.util.Optional;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -20,6 +21,11 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.Storage.BlobTargetOption;
+
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Chat;
 import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
@@ -36,6 +42,8 @@ public class UserServiceTest {
   private UserRepository userRepository;
   @Mock
   private MessageRepository messageRepository;
+  @Mock
+  private Storage storage;
   @InjectMocks
   @Spy
   private UserService userService;
@@ -48,6 +56,10 @@ public class UserServiceTest {
   @BeforeEach
   public void setup() {
     MockitoAnnotations.openMocks(this);
+
+    Mockito.when(
+      storage.create(Mockito.any(BlobInfo.class),Mockito.any(byte[].class),Mockito.<BlobTargetOption[]>any())).thenReturn(null);
+    Mockito.when(storage.delete(Mockito.any(BlobId.class))).thenReturn(true);
 
     // given
     testUser = new User();
@@ -258,12 +270,12 @@ public class UserServiceTest {
       ResponseStatusException response = assertThrows(ResponseStatusException.class, () -> userService.findByUserId(testUser.getId()));
       assertEquals(404, response.getStatus().value());
   }
-  /* TODO
+   
   @Test 
   public void updateUserPhotoValidInput(){
 
     byte[] imageBytes = "UserPhoto".getBytes();
-    MockMultipartFile photo = new MockMultipartFile("userPhoto", imageBytes);
+    MockMultipartFile photo = new MockMultipartFile("userPhoto","userPhoto.png","image/png",imageBytes);
 
     testUser.setPhoto(null);
 
@@ -275,18 +287,61 @@ public class UserServiceTest {
     
 
   }
-  @Test
-  public void updateUserPhotoInvalidInput() throws Exception{
+ @Test
+  public void updateUserPhotoEmptyFile() {
+    
     MultipartFile photo = Mockito.mock(MultipartFile.class);
-    Mockito.doThrow(new IOException("invalid photo format")).when(photo).getContentType();
-
+    
+    Mockito.when(photo.isEmpty()).thenReturn(true);
     Mockito.doReturn(testUser).when(userService).findByUserId(Mockito.anyLong());
 
-    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.updateUserProfilePictureWithUserId(testUser.getId(), photo));
-
-    assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    ResponseStatusException e = assertThrows(ResponseStatusException.class,() -> userService.updateUserProfilePictureWithUserId(testUser.getId(), photo));
+    assertEquals(HttpStatus.BAD_REQUEST, e.getStatus());
   }
-   */
+
+  @Test
+  public void updateUserPhotoWrongContentType() {
+    MultipartFile photo = Mockito.mock(MultipartFile.class);
+    Mockito.when(photo.isEmpty()).thenReturn(false);
+    Mockito.when(photo.getContentType()).thenReturn("image/jpeg");
+    Mockito.doReturn(testUser).when(userService).findByUserId(Mockito.anyLong());
+
+    ResponseStatusException e = assertThrows(ResponseStatusException.class,() -> userService.updateUserProfilePictureWithUserId(testUser.getId(), photo));
+    assertEquals(HttpStatus.BAD_REQUEST, e.getStatus());
+  }
+
+  @Test
+  public void updateUserPhotoNullContentType() {
+  
+    MultipartFile photo = Mockito.mock(MultipartFile.class);
+    Mockito.when(photo.isEmpty()).thenReturn(false);
+    Mockito.when(photo.getContentType()).thenReturn(null);
+    Mockito.doReturn(testUser).when(userService).findByUserId(Mockito.anyLong());
+
+    ResponseStatusException e= assertThrows(ResponseStatusException.class,() -> userService.updateUserProfilePictureWithUserId(testUser.getId(), photo));
+    assertEquals(HttpStatus.BAD_REQUEST, e.getStatus());
+  }
+  @Test
+  public void updateUserPhotoIOExeption() throws Exception{
+      MultipartFile photo = Mockito.mock(MultipartFile.class);
+      Mockito.when(photo.getContentType()).thenReturn("image/png");
+      Mockito.when(photo.getBytes()).thenThrow(new IOException());
+      Mockito.doReturn(testUser).when(userService).findByUserId(Mockito.anyLong());
+
+      ResponseStatusException e = assertThrows(ResponseStatusException.class,() -> userService.updateUserProfilePictureWithUserId(testUser.getId(), photo));
+      assertEquals(HttpStatus.I_AM_A_TEAPOT, e.getStatus());
+  }
+  @Test
+  public void deleteUserPhoto(){
+    String photoUrl = "Photo URL";
+    testUser.setPhoto(photoUrl);
+    Mockito.doReturn(testUser).when(userService.findByUserId(Mockito.anyLong()));
+
+    assertEquals(testUser.getPhoto(), photoUrl);
+    userService.deleteProfilePicture(testUser.getId());
+
+    assertNull(testUser.getPhoto());
+  }
   @Test
   public void createFriendRequestValidInput(){
     User testUser2 = new User();

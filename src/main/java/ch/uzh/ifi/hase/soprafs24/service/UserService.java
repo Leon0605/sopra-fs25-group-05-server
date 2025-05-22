@@ -21,7 +21,6 @@ import org.springframework.web.server.ResponseStatusException;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.Chat;
@@ -53,13 +52,15 @@ public class UserService {
   private final ChatService chatService;
     private final ChatRepository chatRepository;
     private final MessageRepository messageRepository;
+    private final Storage storage;
 
     @Autowired
-  public UserService(@Qualifier("userRepository") UserRepository userRepository, @Lazy ChatService chatService, ChatRepository chatRepository, MessageRepository messageRepository) {
+  public UserService(@Qualifier("userRepository") UserRepository userRepository, @Lazy ChatService chatService, ChatRepository chatRepository, MessageRepository messageRepository, Storage storage) {
     this.userRepository = userRepository;
     this.chatService = chatService;
         this.chatRepository = chatRepository;
         this.messageRepository = messageRepository;
+        this.storage = storage;
     }
 
   public void changeUserPassword(Long userId, String token, UserChangePasswordDTO userChangePasswordDTO){
@@ -77,48 +78,48 @@ public class UserService {
 
   public void updateUserProfilePictureWithUserId(Long userId, MultipartFile photo){
 
-      if (photo.isEmpty() || !photo.getContentType().equals("image/png")) {
+          
+      String contentType = photo.getContentType();
+
+      if (photo.isEmpty() || contentType == null || !contentType.equals("image/png")) {
           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Picture format is wrong");
       }
 
+      User user = findByUserId(userId);
+      String bucketName = "sopra-group5-profile-pictures";
+      String objectName =  userId.toString() + UUID.randomUUID().toString() + ".png";
+      String publicUrl;
+
       try{
-          User user = findByUserId(userId);
-          String bucketName = "sopra-group5-profile-pictures";
-          String objectName =  userId.toString() + UUID.randomUUID().toString() + ".png";
+        BlobId blobId = BlobId.of(bucketName, objectName);
+        BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
+          .setContentType(photo.getContentType())
+          .build();
+
+        this.storage.create(blobInfo, photo.getBytes());
           
-          
-          Storage storage = StorageOptions.getDefaultInstance().getService();
+        if(user.getPhoto() != null){
+          String oldUrl = user.getPhoto();  
+          String oldObjectName = oldUrl.substring(oldUrl.lastIndexOf('/') + 1);
+          this.storage.delete(BlobId.of(bucketName, oldObjectName));
+        }
 
-          BlobId blobId = BlobId.of(bucketName, objectName);
-          BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
-                  .setContentType(photo.getContentType())
-                  .build();
-
-          storage.create(blobInfo, photo.getBytes());
-          
-          if(user.getPhoto() != null){
-            String oldUrl = user.getPhoto();  
-            String oldObjectName = oldUrl.substring(oldUrl.lastIndexOf('/') + 1);
-            storage.delete(BlobId.of(bucketName, oldObjectName));
-          }
-
-          String publicUrl = "https://storage.googleapis.com/" + bucketName + "/" + objectName;
-         
-          user.setPhoto(publicUrl);
-          userRepository.save(user);
-          userRepository.flush();
-          // Optionally save URL to user's DB record
-          // userService.updateProfilePictureUrl(id, publicUrl);
-
-          //return ResponseEntity.ok(Map.of("url", publicUrl));
+        publicUrl = "https://storage.googleapis.com/" + bucketName + "/" + objectName;
 
       } catch (IOException e) {
           throw new ResponseStatusException(HttpStatus.I_AM_A_TEAPOT, "Upload failed");
       }
+      user.setPhoto(publicUrl);
+      userRepository.save(user);
+      userRepository.flush();
     }
 
     public void deleteProfilePicture(Long userId){
         User user = findByUserId(userId);
+        String bucketName = "sopra-group5-profile-pictures";
+        String oldUrl = user.getPhoto();  
+        String oldObjectName = oldUrl.substring(oldUrl.lastIndexOf('/') + 1);
+        this.storage.delete(BlobId.of(bucketName, oldObjectName));
         user.setPhoto(null);
     }
 
