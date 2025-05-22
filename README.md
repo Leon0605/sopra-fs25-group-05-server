@@ -1,21 +1,45 @@
-# SoPra RESTful Service Template FS25
+# Habla! - A multilingual ChatApp
 
-## Getting started with Spring Boot
--   Documentation: https://docs.spring.io/spring-boot/docs/current/reference/html/index.html
--   Guides: http://spring.io/guides
-    -   Building a RESTful Web Service: http://spring.io/guides/gs/rest-service/
-    -   Building REST services with Spring: https://spring.io/guides/tutorials/rest/
+## Introduction
+Our primary goal for this project was to create a chat app, that would enable users that don't speak the same language to effortlessly chat with each other by integrating a translation service into the chat itself thus allowing to overcome language barriers. 
+Our secondary goal was to utilize the chats for language learning by providing a flashcards that can be created from real messages sent. 
 
-## Setup this Template with your IDE of choice
+
+## Technologies
+- Google Cloud flexible app engine for serverside deployment
+- Google Cloud Storage to store profile pictures
+- SpringBoot/REST for API
+- WebSockets for real time chatting
+
+## High-level components
+Below is a list of the core components used for the backend of our application.
+### 1. Websockets
+The Websockets are a core part of our application since they allow users to chat to each other in real time. The Websockets connection is handled by the [WebSocketConfig](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/configurations/WebSocketConfig.java) which provides an endpoint to establish a direct connection between client and server. It also specifies which client origins are allowed to connect to the server. The [WebSocketChatController](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/controller/WebSocketChatController.java) provides an endpoint where messages can be sent to and where they will be redistributed to the correct users in the correct format. 
+
+### 2. REST Chat Controller
+The [RestChatController](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/controller/RestChatController.java) is a second core component for our chat application. It is responsible for handling chat-related REST requests which are not handled by the [WebSockets](#1-websockets). It plays a crucial role for creating chats and restoring previously sent messages providing persistence of chat history when opening up a previously used chat.
+
+### 3. User Service
+The [UserService](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/UserService.java) is a core component of our application which handles all user-related functionalities. It handles both profile management(e.g. [sign-up](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/UserService.java#L226), [login](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/UserService.java#L213) and [updating](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/UserService.java#L126) a profile) and implements a friends system, forming the third pillar of the chatting service next to [Websockets](#1-websockets) and the [RestChatController](#2-rest-chat-controller).
+
+### 4. Flashcard Service
+The [FlashcardService](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/FlashcardService.java) is the component that handles flashcard-related functionality which was our secondary goal for this application. It allows user to [create](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/FlashcardService.java#L68) and train with flashcards to learn new languages.
+
+### 5. Azure API
+[AzureAPI](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/API/AzureAPI.java) is an [API provided by Microsoft](https://azure.microsoft.com/en-us/products/api-management) and is the external API used for this project. It is responsible for the [translation of chat messages](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/controller/WebSocketChatController.java#L54) but also assists users when [creating flashcards](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/src/main/java/ch/uzh/ifi/hase/soprafs24/service/FlashcardService.java#L86) in an unknown language.
+
+
+## Launch & Deployment
+### Setup this Template with your IDE of choice
 Download your IDE of choice (e.g., [IntelliJ](https://www.jetbrains.com/idea/download/), [Visual Studio Code](https://code.visualstudio.com/), or [Eclipse](http://www.eclipse.org/downloads/)). Make sure Java 17 is installed on your system (for Windows, please make sure your `JAVA_HOME` environment variable is set to the correct version of Java).
 
-### IntelliJ
+#### IntelliJ
 If you consider to use IntelliJ as your IDE of choice, you can make use of your free educational license [here](https://www.jetbrains.com/community/education/#students).
 1. File -> Open... -> SoPra server template
 2. Accept to import the project as a `gradle project`
 3. To build right click the `build.gradle` file and choose `Run Build`
 
-### VS Code
+#### VS Code
 The following extensions can help you get started more easily:
 -   `vmware.vscode-spring-boot`
 -   `vscjava.vscode-spring-initializr`
@@ -24,35 +48,31 @@ The following extensions can help you get started more easily:
 
 **Note:** You'll need to build the project first with Gradle, just click on the `build` command in the _Gradle Tasks_ extension. Then check the _Spring Boot Dashboard_ extension if it already shows `soprafs24` and hit the play button to start the server. If it doesn't show up, restart VS Code and check again.
 
-## Building with Gradle
+### Commands
+
+#### Building with gradlew
 You can use the local Gradle Wrapper to build the application.
--   macOS: `./gradlew`
--   Linux: `./gradlew`
+-   macOS: `./gradlew` , `./gradlew clean build`
+-   Linux: `./gradlew` , `./gradlew clean build`
 -   Windows: `./gradlew.bat`
 
-More Information about [Gradle Wrapper](https://docs.gradle.org/current/userguide/gradle_wrapper.html) and [Gradle](https://gradle.org/docs/).
+> ***IMPORTANT***: This will run all tests before actually building the product. If at least one test fails the building using these commands will also fail
 
-### Build
+#### Building with gradlew (ignoring tests)
+If you have at least one test that does fail you can still build the code using the command:
 
-```bash
-./gradlew build
-```
+-   macOS: `./gradlew build -x test`
+-   Linux: `./gradlew build -x test`
+-   Windows: `./gradlew.bat -x test`
 
-### Run
-
+#### Running the Application
 ```bash
 ./gradlew bootRun
 ```
 
 You can verify that the server is running by visiting `localhost:8080` in your browser.
 
-### Test
-
-```bash
-./gradlew test
-```
-
-### Development Mode
+#### Development Mode
 You can start the backend in development mode, this will automatically trigger a new build and reload the application
 once the content of a file has been changed.
 
@@ -67,52 +87,64 @@ and in the other one:
 If you want to avoid running all tests with every change, use the following command instead:
 
 `./gradlew build --continuous -xtest`
+### Testing
+#### Running all tests
+You can run tests by either [building](#building-with-gradlew) the application or running the command:
 
-## API Endpoint Testing with Postman
+`./gradlew test`
+
+#### Running specific tests
+If you don't want to run all tests at the same time and focus on a specific set of tests, you can use the command:
+
+`./gradlew test --tests ` + "ch.uzh.ifi.hase.soprafs24" + <testfile_path>
+
+>Example: `./gradlew test --tests ch.uzh.ifi.hase.soprafs24.service.UserServiceTest` will only run the tests in the file UserServiceTest
+
+You can also run a single test using:
+
+`./gradlew test --tests` + "ch.uzh.ifi.hase.soprafs24" + <testfile_path> + <test_name>
+
+>Example: `./gradlew test --tests ch.uzh.ifi.hase.soprafs24.service.UserServiceTest.findByUserId_invalidUserId_throwsException` will only run the test findByUserId_invalidUserId_throwsException located in the file UserServiceTest 
+
+
+#### API Endpoint Testing with Postman
 We recommend using [Postman](https://www.getpostman.com) to test your API Endpoints.
 
-## Debugging
-If something is not working and/or you don't know what is going on. We recommend using a debugger and step-through the process step-by-step.
+### Deployment
+Commits to the [main branch](https://github.com/Leon0605/sopra-fs25-group-05-server/tree/main) will be tried to be deployed to google cloud as configured in the [github workflow files](https://github.com/Leon0605/sopra-fs25-group-05-server/tree/main/.github/workflows)
+## Roadmap
+Here are some features we envision for future contributions:
 
-To configure a debugger for SpringBoot's Tomcat servlet (i.e. the process you start with `./gradlew bootRun` command), do the following:
+1. ***Support of new languages***:
 
-1. Open Tab: **Run**/Edit Configurations
-2. Add a new Remote Configuration and name it properly
-3. Start the Server in Debug mode: `./gradlew bootRun --debug-jvm`
-4. Press `Shift + F9` or the use **Run**/Debug "Name of your task"
-5. Set breakpoints in the application where you need it
-6. Step through the process one step at a time
+    Currently our application does only support 4 languages. It would make sense to enable new languages to attract possible new users.
 
-## Testing
-Have a look here: https://www.baeldung.com/spring-boot-testing
+2. ***Restructuring of Message Database***:
 
-<br>
-<br>
-<br>
+   In our current code the content of a message is stored in the message object itself. This works fine for now but could cause potential issues as new languages are added as the memory space needed increases significantly. A possibility would be to store the content separately and only storing a reference to the content in the message object itself. This would not only decrease needed memory, as multiple messages could reference the same content reducing redundant information storage but also opening new doors for additional interesting features.
 
-## Docker
+3. ***Machine Learning & AI***
 
-### Introduction
-This year, for the first time, Docker will be used to ease the process of deployment.\
-Docker is a tool that uses containers as isolated environments, ensuring that the application runs consistently and uniformly across different devices.\
-Everything in this repository is already set up to minimize your effort for deployment.\
-All changes to the main branch will automatically be pushed to dockerhub and optimized for production.
+    One of the interesting features mentioned above would be to utilize this new database to train an ML algorithm allowing for new features like User-Based Typo Detection or an AI Chatbot which utilizes the messages to simulate real conversations to enable personalized language learning
 
-### Setup
-1. **One** member of the team should create an account on [dockerhub](https://hub.docker.com/), _incorporating the group number into the account name_, for example, `SoPra_group_XX`.\
-2. This account then creates a repository on dockerhub with the _same name as the group's Github repository name_.\
-3. Finally, the person's account details need to be added as [secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository) to the group's repository:
-    - dockerhub_username (the username of the dockerhub account from step 1, for example, `SoPra_group_XX`)
-    - dockerhub_password (a generated PAT([personal access token](https://docs.docker.com/docker-hub/access-tokens/)) of the account with read and write access)
-    - dockerhub_repo_name (the name of the dockerhub repository from step 2)
+4. ***Security***
 
-### Pull and run
-Once the image is created and has been successfully pushed to dockerhub, the image can be run on any machine.\
-Ensure that [Docker](https://www.docker.com/) is installed on the machine you wish to run the container.\
-First, pull (download) the image with the following command, replacing your username and repository name accordingly.
+    When starting to use more sensitive data it would make sense to increase the security of the application with things like Cookies, 2FA, etc.
 
-```docker pull <dockerhub_username>/<dockerhub_repo_name>```
+## Authors and acknowledgments
+### Authors
 
-Then, run the image in a container with the following command, again replacing _<dockerhub_username>_ and _<dockerhub_repo_name>_ accordingly.
+- Christopher Robert Traill: Team Leader, Frontend Developer
+- Nikola Pavlovic: Backend Developer
+- Andy de Vantéry: Frontend Developer
+- Leon Matteo Schwager: Backend Developer
 
-```docker run -p 3000:3000 <dockerhub_username>/<dockerhub_repo_name>```
+### Acknowledgments
+This project was developed as part of the [Software Engineering Lab FS25](https://hasel.dev/teachings/fs25-sopra/) at the University of Zurich.
+
+Special thanks to our teaching assistant Ambros Eberhard for his continuous feedback and guidance throughout the project. 
+## License
+
+This project is licensed under the Apache License 2.0.
+You are free to use, modify, and distribute this software, provided that proper attribution is given and all conditions of the license are met.
+For more information, see the [LICENSE](https://github.com/Leon0605/sopra-fs25-group-05-server/blob/main/LICENSE) file.

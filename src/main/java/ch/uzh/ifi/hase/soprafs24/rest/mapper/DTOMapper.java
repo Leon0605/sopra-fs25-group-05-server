@@ -63,6 +63,7 @@ public interface DTOMapper {
 
   @Mapping(source = "userIds", target = "userIds")
   @Mapping(source = "chatId", target = "chatId")
+  @Mapping(source = "name", target = "name")
   UserChatDTO convertChatEntityToUserChatDTO(Chat chat);
 
 

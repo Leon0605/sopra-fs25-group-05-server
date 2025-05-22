@@ -413,7 +413,7 @@ public class UserServiceTest {
     testUser.setToken("TestToken");
 
     Chat chat = new Chat();
-    Mockito.doReturn(chat).when(chatService).createChat(Mockito.any());
+    Mockito.doReturn(chat).when(chatService).createChat(Mockito.any(), Mockito.any());
 
     Mockito.doAnswer(invocation -> {
         Long id = invocation.getArgument(0); 
@@ -425,8 +425,8 @@ public class UserServiceTest {
 
     assertTrue(testUser.getReceivedFriendRequestsList().isEmpty());
     assertTrue(testUser2.getSentFriendRequestsList().isEmpty());
-    assertEquals(testUser.getFriendsList().get(0),2L);
-    assertEquals(testUser2.getFriendsList().get(0),1L);
+    assertEquals(2L, testUser.getFriendsList().get(0));
+    assertEquals(1L, testUser2.getFriendsList().get(0));
   }
 
   @Test

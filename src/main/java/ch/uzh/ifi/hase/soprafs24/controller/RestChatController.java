@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 //Java Libraries
 import java.util.ArrayList;
 
+import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.CreateChatDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -119,11 +120,20 @@ public class RestChatController {
     }
     */
 
+    @GetMapping("/chats/{userId}/notifications")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public ArrayList<OutgoingMessageDTO> getUnreadMessages(@PathVariable Long userId){
+        return chatService.getUnreadMessages(userId);
+    }
+
 
     @PostMapping("/chats")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public String createChat(@RequestBody ArrayList<Long> userIds) {
+    public String createChat(@RequestBody CreateChatDTO createChatDTO) {
+        ArrayList<Long> userIds = createChatDTO.getUserIds();
+        String chatName = createChatDTO.getChatName();
         if (userIds == null || userIds.size() < 2) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A chat must have at least two users.");
         }
@@ -133,7 +143,7 @@ public class RestChatController {
             User user = userService.findByUserId(userId);
             users.add(user);
         }
-    Chat newChat = chatService.createChat(users);
+    Chat newChat = chatService.createChat(users, chatName);
     return newChat.getChatId();
     }
 }

@@ -13,6 +13,7 @@ import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.MessageRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.constant.ReadByUsers;
 
+import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.OutgoingMessageDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.*;
@@ -65,6 +66,7 @@ public class ChatServiceTest {
 
         testChat = new Chat();
         testChat.setChatId("1");
+        testChat.setName("testChat");
         HashSet<String> languages = new HashSet<>();
         languages.add("en");
         testChat.setLanguages(languages);
@@ -72,6 +74,7 @@ public class ChatServiceTest {
         testMessage = new Message();
         testMessage.setMessageId("1");
         LanguageMapping languageMapping = new LanguageMapping();
+        testMessage.setOriginal("Hello");
         languageMapping.setContent("en", "Hello");
         testMessage.setLanguageMapping(languageMapping);
         testMessage.setChatId(testChat.getChatId());
@@ -101,13 +104,14 @@ public class ChatServiceTest {
         Mockito.when(userRepository.save(testUser2)).thenReturn(testUser2);
         Mockito.when(chatService.generateId()).thenReturn("1");
 
-        Chat createdChat = chatService.createChat(users);
+        Chat createdChat = chatService.createChat(users, testChat.getName());
         Mockito.verify(chatRepository, Mockito.times(1)).save(Mockito.any());
 
         assertEquals(testChat.getChatId(), createdChat.getChatId());
         assertEquals(testChat.getLanguages(), createdChat.getLanguages());
         assertTrue(testUser.getChats().contains(createdChat.getChatId()));
         assertTrue(testUser2.getChats().contains(createdChat.getChatId()));
+        assertEquals(testChat.getName(), createdChat.getName());
 
     }
 
@@ -118,8 +122,70 @@ public class ChatServiceTest {
 
         Mockito.when(chatService.generateId()).thenReturn("1");
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> chatService.createChat(users));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> chatService.createChat(users, null));
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    }
+
+    @Test
+    public void getUnreadMessages_ReturnsUnreadMessages(){
+        ArrayList<OutgoingMessageDTO> expectedMessages = new ArrayList<>();
+        testMessage.setStatus("sent");
+        OutgoingMessageDTO expectedOutgoingMessage = new OutgoingMessageDTO();
+        expectedOutgoingMessage.setMessageId(testMessage.getMessageId());
+        expectedOutgoingMessage.setChatId(testChat.getChatId());
+        expectedOutgoingMessage.setUserId(testUser.getId());
+        expectedOutgoingMessage.setOriginalMessage(testMessage.getOriginal());
+        expectedMessages.add(expectedOutgoingMessage);
+
+        User user1 = new User();
+        user1.setId(2L);
+
+        ArrayList<Long> users = new ArrayList<>();
+        users.add(testUser.getId());
+        users.add(user1.getId());
+
+        ReadByUsers rBU = new ReadByUsers();
+        rBU.addReadByUser(user1.getId());
+        testChat.setUserIds(users);
+        testUser.setChats(testChat.getChatId());
+        testMessage.setReadByUser(rBU);
+
+        Mockito.when(chatRepository.findByChatId(Mockito.any())).thenReturn(testChat);
+        Mockito.when(userService.findByUserId(Mockito.any())).thenReturn(testUser);
+        Mockito.when(messageRepository.findByMessageId(Mockito.any())).thenReturn(testMessage);
+
+        ArrayList<OutgoingMessageDTO> actualMessages = chatService.getUnreadMessages(testUser.getId());
+        assertEquals(expectedMessages.size(), actualMessages.size());
+        assertEquals(expectedMessages.get(0).getMessageId(), actualMessages.get(0).getMessageId());
+        assertEquals(expectedMessages.get(0).getChatId(), actualMessages.get(0).getChatId());
+        assertEquals(expectedMessages.get(0).getUserId(), actualMessages.get(0).getUserId());
+        assertEquals(expectedMessages.get(0).getOriginalMessage(), actualMessages.get(0).getOriginalMessage());
+    }
+
+    @Test
+    public void getUnreadMessages_doesNotReturnReadMessages(){
+        testMessage.setStatus("read");
+
+        User user1 = new User();
+        user1.setId(2L);
+
+        ArrayList<Long> users = new ArrayList<>();
+        users.add(testUser.getId());
+        users.add(user1.getId());
+
+        ReadByUsers rBU = new ReadByUsers();
+        rBU.addReadByUser(user1.getId());
+        rBU.addReadByUser(testUser.getId());
+        testChat.setUserIds(users);
+        testUser.setChats(testChat.getChatId());
+        testMessage.setReadByUser(rBU);
+
+        Mockito.when(chatRepository.findByChatId(Mockito.any())).thenReturn(testChat);
+        Mockito.when(userService.findByUserId(Mockito.any())).thenReturn(testUser);
+        Mockito.when(messageRepository.findByMessageId(Mockito.any())).thenReturn(testMessage);
+
+        ArrayList<OutgoingMessageDTO> actualMessages = chatService.getUnreadMessages(testUser.getId());
+        assertTrue(actualMessages.isEmpty());
     }
 
     @Test
