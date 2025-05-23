@@ -58,11 +58,15 @@ public class User implements Serializable {
   private String privacy;
 
   private String birthday;
-
+  
+  @Lob
+  @Column(name="friends_ids", columnDefinition="BLOB")
   private ArrayList<Long> friendsList = new ArrayList<>();
-
+  @Lob
+  @Column(name="received_ids", columnDefinition="BLOB")
   private ArrayList<Long> receivedFriendRequestsList = new ArrayList<>();
-
+  @Lob
+  @Column(name="sent_ids", columnDefinition="BLOB")
   private ArrayList<Long> sentFriendRequestsList = new ArrayList<>();
   
   @Lob

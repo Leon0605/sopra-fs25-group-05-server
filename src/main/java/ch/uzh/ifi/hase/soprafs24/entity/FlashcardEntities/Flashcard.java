@@ -1,7 +1,9 @@
 package ch.uzh.ifi.hase.soprafs24.entity.FlashcardEntities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import ch.uzh.ifi.hase.soprafs24.constant.FlashcardStatus;
@@ -14,8 +16,14 @@ public class Flashcard {
 
     private Long userId;
     private String learningLanguage;
+
+    @Lob
+    @Column(name="content_front", columnDefinition="BLOB")
     private String contentFront;
+    @Lob
+    @Column(name="content_back", columnDefinition="BLOB")
     private String contentBack;
+    
     private String flashcardSetId;
     private String language;
     private FlashcardStatus status;

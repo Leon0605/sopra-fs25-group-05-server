@@ -19,6 +19,8 @@ public class FlashcardSet {
     private ArrayList<String> flashcardsIds = new ArrayList<>();
     private String learningLanguage;
     private Long userId;
+    @Lob
+    @Column(name="flashcard_set_name", columnDefinition="BLOB")
     private String flashcardSetName;
     private String language;
 
