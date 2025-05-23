@@ -3,7 +3,6 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 //Java Libraries
 import java.util.ArrayList;
 
-import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.CreateChatDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +21,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.ChatsEntities.OutgoingMessage;
 import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
 import ch.uzh.ifi.hase.soprafs24.repository.ChatsRepositories.ChatRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UsersRepositories.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.CreateChatDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.OutgoingMessageDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.ChatDTO.UserChatDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
@@ -66,10 +66,9 @@ public class RestChatController {
         chatService.updateMessageStatus(messageId, userId);
     }
 
-    @PutMapping("/chats/{chatId}/{userId}")
+    @PutMapping("/chats/{chatId}/{userId}/handling")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-
     public void groupChatHandling(@PathVariable String chatId, @PathVariable Long userId, @RequestHeader("Decision") String decision){
         if(decision.equals("add")){
             chatService.addUserToChat(chatId, userId);
