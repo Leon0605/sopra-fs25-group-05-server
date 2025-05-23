@@ -93,7 +93,6 @@ public class UserController {
   @ResponseBody
   public UserGetDTO getOneUser(@PathVariable String userId, @RequestHeader("Token") String token){
     long id = Long.parseLong(userId);
-    System.out.println(token);
     return DTOMapper.INSTANCE.convertEntityToUserGetDTO(userService.getSingleUser(id, token));
   }
 

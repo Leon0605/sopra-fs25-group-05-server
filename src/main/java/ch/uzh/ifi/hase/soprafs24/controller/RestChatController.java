@@ -96,28 +96,10 @@ public class RestChatController {
             OutgoingMessage outgoingMessage = chatService.transformMessageToOutput(message, userLanguage);
             outgoingMessageDTOS.add(DTOMapper.INSTANCE.convertOutgoingMessageToOutgoingMessageDTO(outgoingMessage));
         }
-        /*for(ChatMessageDTO chatMessageDTO: chatMessageDTOs){
-            for(Long userId: chatRepository.findByChatId(chatId).getUserIds()){
-                User user = userService.findByUserId(userId);
-                chatMessageDTO.setUserLanguageMapping(userId,user.getLanguage());
-            }
-            
-   
-        }
 
-         */
         return outgoingMessageDTOS;
     }
-    /*
-    @PostMapping("/chat/{chatId}/message")
-    @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
-    public void sendMessageRequest(@PathVariable String chatId, @RequestHeader("userId") Long userId, @RequestBody MessageContentDTO messageContentDTO){
-        String content = messageContentDTO.getContent();
-        Message message = chatService.CreateMessage(content,userId, chatId);
-        chatService.saveMessage(message);
-    }
-    */
+
 
     @GetMapping("/chats/{userId}/notifications")
     @ResponseStatus(HttpStatus.OK)

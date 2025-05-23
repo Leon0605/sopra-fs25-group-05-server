@@ -225,15 +225,6 @@ public class ChatServiceTest {
         assertNotNull(actualMessage.getTimestamp());
     }
 
-    /*@Test
-    public void saveMessage_validInputs_success(){
-        Mockito.when(chatRepository.findByChatId(Mockito.any())).thenReturn(testChat);
-        Mockito.verify(chatRepository, Mockito.times(1)).save(Mockito.any());
-        Mockito.verify(messageRepository, Mockito.times(1)).save(Mockito.any());
-
-    }
-
-     */
 
     @Test
     public void saveMessage_invalidChatId_throwsException(){
@@ -246,16 +237,6 @@ public class ChatServiceTest {
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> chatService.saveMessage(message));
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
     }
-
-    /*TODO ?
-    @Test
-    public void saveMessage_validInputs_Success(){
-        Mockito.when(chatRepository.findByChatId(Mockito.any())).thenReturn(testChat);
-        Mockito.verify(chatRepository, Mockito.times(1)).save(Mockito.any());
-        Mockito.verify(messageRepository, Mockito.times(1)).save(Mockito.any());
-    }
-
-     */
 
 
     @Test

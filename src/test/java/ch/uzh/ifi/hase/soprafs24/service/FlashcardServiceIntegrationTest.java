@@ -313,7 +313,6 @@ public class FlashcardServiceIntegrationTest {
     flashcardService.updateFlashcardSetName(testUser.getToken(),flashcardSet.getFlashcardSetId(), incomingNewFlashcardSetUpdate);
 
     FlashcardSet updatedFlashcardSet = flashcardSetRepository.findAll().get(0);
-    System.out.println(updatedFlashcardSet.getFlashcardSetName());
     assertEquals(updatedSetName, updatedFlashcardSet.getFlashcardSetName());
   }
   @Test

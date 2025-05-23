@@ -168,13 +168,12 @@ public class WebSocketChatControllerTest {
     private class MessageStompFrameHandler implements StompFrameHandler {
         @Override
         public Type getPayloadType(StompHeaders stompHeaders){
-            System.out.println(stompHeaders.toString());
+
             return OutgoingMessageDTO.class;
         }
 
         @Override
         public void handleFrame(StompHeaders stompHeaders, Object o){
-            System.out.println((OutgoingMessageDTO) o);
             completableFuture.complete((OutgoingMessageDTO) o);
         }
     }

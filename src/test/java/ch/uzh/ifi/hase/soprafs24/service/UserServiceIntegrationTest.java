@@ -229,41 +229,6 @@ public class UserServiceIntegrationTest {
 
     assertEquals(HttpStatus.CONFLICT, exception.getStatus());
   }
-/* TODO
-  @Test
-  public void updateUserPhotoValidInput(){
-    User testUser = new User();
-    testUser.setPassword("Password");
-    testUser.setUsername("Sender");
-    User createdUser = userService.createUser(testUser);
-
-    byte[] imageBytes = "UserPhoto".getBytes();
-    MockMultipartFile photo = new MockMultipartFile("userPhoto", imageBytes);
-
-    assertNull(createdUser.getPhoto());
-    userService.updateUserProfilePictureWithUserId(createdUser.getId(), photo);
-
-    User updatedUser = userService.findByUserId(createdUser.getId());
-
-    assertNotNull(updatedUser.getPhoto());
-  
-  }
-  
-  @Test
-  public void updateUserPhotoInvalidInput() throws Exception{
-    User testUser = new User();
-    testUser.setPassword("Password");
-    testUser.setUsername("Sender");
-    User createdUser = userService.createUser(testUser);
-
-    
-    MultipartFile badPhoto = Mockito.mock(MultipartFile.class);
-    Mockito.when(badPhoto.getBytes()).thenThrow(new IOException("invalid format"));
-    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.updateUserProfilePictureWithUserId(createdUser.getId(), badPhoto));
-
-    assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
-  }
- */
 
 
 

@@ -29,12 +29,6 @@ import ch.uzh.ifi.hase.soprafs24.entity.UserEntities.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserDTO.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 
-/**
- * UserControllerTest
- * This is a WebMvcTest which allows to test the UserController i.e. GET/POST
- * request without actually sending them over the network.
- * This tests if the UserController works.
- */
 @WebMvcTest(UserController.class)
 public class UserControllerTest {
 
@@ -122,58 +116,19 @@ public class UserControllerTest {
         given(userService.findByUserId(testReceiver.getId())).willReturn(testReceiver);
         given(userService.findByUserId(testSender.getId())).willReturn(testSender);
 
-        MockHttpServletRequestBuilder getRequest = get("/users/"+testReceiver.getId()+"/friend-request").contentType(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder getRequest = get("/users/" + testReceiver.getId() + "/friend-request").contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(getRequest).andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].id", is(testSender.getId().intValue())));
     }
-  /*@Test
-  public void createUser_validInput_userCreated() throws Exception {
-    // given
-    User user = new User();
-    user.setId(1L);
-    user.setPassword("Password");
-    user.setUsername("testUsername");
-    user.setToken("1");
-    user.setStatus(UserStatus.OFFLINE);
-
-    UserPostDTO userPostDTO = new UserPostDTO();
-    userPostDTO.setPassword("Password");
-    userPostDTO.setUsername("testUsername");
-
-    given(userService.createUser(Mockito.any())).willReturn(user);
-
-    // when/then -> do the request + validate the result
-    MockHttpServletRequestBuilder postRequest = post("/users")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(asJsonString(userPostDTO));
-
-    // then
-    mockMvc.perform(postRequest)
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.id", is(user.getId().intValue())))
-        .andExpect(jsonPath("$.token", is(user.getToken())))
-        .andExpect(jsonPath("$.username", is(user.getUsername())))
-        .andExpect(jsonPath("$.status", is(user.getStatus().toString())));
-  }
-   /*
-   * Helper Method to convert userPostDTO into a JSON string such that the input
-   * can be processed
-   * Input will look like this: {"name": "Test User", "username": "testUsername"}
-   *
-   * @param object
-   * @return string
-
-
-   */
-
-    private String asJsonString(final Object object) {
-        try {
-            return new ObjectMapper().writeValueAsString(object);
-        } catch (JsonProcessingException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    String.format("The request body could not be created.%s", e.toString()));
+        private String asJsonString ( final Object object){
+            try {
+                return new ObjectMapper().writeValueAsString(object);
+            }
+            catch (JsonProcessingException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        String.format("The request body could not be created.%s", e.toString()));
+            }
         }
     }
-}
